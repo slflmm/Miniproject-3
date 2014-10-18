@@ -1,0 +1,130 @@
+% When adding to this file, please put references in the appropriate section (make a new section if need be) and comment on the value of the paper so that others can understand.
+
+% ------------------------------------
+% IDEAS FOR 4TH METHOD
+% we can try more than one
+% ------------------------------------
+
+
+% Seminal dropout paper
+% With complicated relationship between input-output, and enough hidden units to model it... overfit.
+% Dropout prevents complex co-adaptations on training data
+% For each training case, hidden units are randomly omitted with probability 0.5 (can vary)
+% Basically efficient model averaging without cost of training many networks (a bit like bagging a bunch of networks)
+% Do stochastic gradient descent with mini batches, penalty on L2 norm of whole weight vector
+@article{Hinton,
+  title={Improving neural networks by preventing co-adaptation of feature detectors},
+  author={Hinton, Geoffrey E and Srivastava, Nitish and Krizhevsky, Alex and Sutskever, Ilya and Salakhutdinov, Ruslan R},
+  journal={arXiv preprint arXiv:1207.0580},
+  year={2012}
+}
+
+% Version of dropout that does best on MNIST right now (2013) (according to http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html)
+% Dropout basically prevents overfitting when there are many layers, this does it better and seems implementable
+% Rather than dropping weights in layer with probability (1-p), drop connections with probability (1-p)
+% You should cross-validate over the drop-rate
+@inproceedings{Wan,
+  title={Regularization of neural networks using dropconnect},
+  author={Wan, Li and Zeiler, Matthew and Zhang, Sixin and Cun, Yann L and Fergus, Rob},
+  booktitle={Proceedings of the 30th International Conference on Machine Learning (ICML-13)},
+  pages={1058--1066},
+  year={2013}
+}
+
+% Original paper introducing convnets 
+% Idea is to emulate human pattern-recognition in a neural net
+% Usually neural net results can be very affected by shift in position, distortion in shape (the case of our dataset!), so bad at patterns
+% Convolutions deal well with geometrical similarity regardless of position
+% go here for a clear explanation of how they work: http://deeplearning.net/tutorial/lenet.html
+@article{fFukushima,
+  title={Neocognitron: A self-organizing neural network model for a mechanism of pattern recognition unaffected by shift in position},
+  author={Fukushima, Kunihiko},
+  journal={Biological cybernetics},
+  volume={36},
+  number={4},
+  pages={193--202},
+  year={1980},
+  publisher={Springer}
+}
+
+% Yann LeCunn's convnet with good invariance to noise, minor rotations in MNIST (will cite properly later)
+% http://yann.lecun.com/exdb/lenet/index.html
+
+% Deep convolutional neural networks for image classification
+% Used dropout in fully-connected layers (i.e. not the convolutions)
+% Won a competition by a very wide margin
+@inproceedings{Krizhevsky,
+  title={Imagenet classification with deep convolutional neural networks},
+  author={Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E},
+  booktitle={Advances in neural information processing systems},
+  pages={1097--1105},
+  year={2012}
+}
+
+% You can pre-train a convnet (good with noise, position, distortion, minor rotations) on MNIST...
+% Pretraining also works as a regularization and seems to make you land in the better local optima than random initialization
+@article{Erhan,
+  title={Why does unsupervised pre-training help deep learning?},
+  author={Erhan, Dumitru and Bengio, Yoshua and Courville, Aaron and Manzagol, Pierre-Antoine and Vincent, Pascal and Bengio, Samy},
+  journal={The Journal of Machine Learning Research},
+  volume={11},
+  pages={625--660},
+  year={2010},
+  publisher={JMLR. org}
+}
+
+% There are several methods for dealing with rotated examples once you know upright images (will include more later)
+% e.g. train on upright images (MNIST), use a router network to turn new examples upright
+@inproceedings{Rowley,
+  title={Rotation invariant neural network-based face detection},
+  author={Rowley, Henry A and Baluja, Shumeet and Kanade, Takeo},
+  booktitle={Computer Vision and Pattern Recognition, 1998. Proceedings. 1998 IEEE Computer Society Conference on},
+  pages={38--44},
+  year={1998},
+  organization={IEEE}
+}
+
+
+% Or this idea which measures distance by transformations (something a bit like nearest neighbour)
+@incollection{Simard,
+  title={Transformation invariance in pattern recognition--tangent distance and tangent propagation},
+  author={Simard, Patrice Y and LeCun, Yann A and Denker, John S and Victorri, Bernard},
+  booktitle={Neural networks: tricks of the trade},
+  pages={235--269},
+  year={2012},
+  publisher={Springer}
+}
+
+
+% ----------------
+% LIBRARIES
+% ----------------
+
+% Theano for flexible neural network implementation on GPU
+@inproceedings{Theano,
+     author = {Bergstra, James and Breuleux, Olivier and Bastien, Fr{\'{e}}d{\'{e}}ric and Lamblin, Pascal and Pascanu, Razvan and Desjardins, Guillaume and Turian, Joseph and Warde-Farley, David and Bengio, Yoshua},
+      month = jun,
+      title = {Theano: a {CPU} and {GPU} Math Expression Compiler},
+  booktitle = {Proceedings of the Python for Scientific Computing Conference ({SciPy})},
+       year = {2010},
+   location = {Austin, TX},
+       note = {Oral Presentation}
+}
+
+% CUDA-CONVNET for a very fast GPU implementation of convolution layer (can be used within Theano)--> also cite Krizhevsky
+
+% https://github.com/dnouri/cuda-convnet for dropout added to convolution
+
+% Scikit-learn for SVM
+@article{scikit-learn,
+ title={Scikit-learn: Machine Learning in {P}ython},
+ author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+         and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
+         and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
+         Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
+ journal={Journal of Machine Learning Research},
+ volume={12},
+ pages={2825--2830},
+ year={2011}
+}
+
