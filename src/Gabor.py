@@ -16,6 +16,7 @@ def get_features(image, gaborKernels):
 		features[count, 0] = filt.mean()
 		features[count, 1] = filt.var()
 		count = count + 1
+	return features
 
 '''
 	Generates kernels to be used in feature extraction or as a kernel for SVM.
