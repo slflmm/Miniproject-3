@@ -1,5 +1,25 @@
 % When adding to this file, please put references in the appropriate section (make a new section if need be) and comment on the value of the paper so that others can understand.
 
+% ------------------
+% Cross-validation
+% ------------------
+
+% Turns out random search for hyper-parameter optimization works both:
+% (1) As well or better than gridsearch
+% (2) Much faster than gridsearch
+$ (Gridsearch being the usual method for optimizing multiple parameters)
+% This is especially useful for neural nets, where we have many hyperparameters to tune and training may be slow.
+@article{Bergstra,
+  title={Random search for hyper-parameter optimization},
+  author={Bergstra, James and Bengio, Yoshua},
+  journal={The Journal of Machine Learning Research},
+  volume={13},
+  number={1},
+  pages={281--305},
+  year={2012},
+  publisher={JMLR. org}
+}
+
 % ------------------------------------
 % IDEAS FOR 4TH METHOD
 % we can try more than one
