@@ -23,6 +23,7 @@
 % Dropout basically prevents overfitting when there are many layers, this does it better and seems implementable
 % Rather than dropping weights in layer with probability (1-p), drop connections with probability (1-p)
 % You should cross-validate over the drop-rate
+% IMPORTANT NOTE: These guys actually averaged the results of multiple dropconnect networks!!! Informal review online says that dropconnect is about as good as dropout.
 @inproceedings{Wan,
   title={Regularization of neural networks using dropconnect},
   author={Wan, Li and Zeiler, Matthew and Zhang, Sixin and Cun, Yann L and Fergus, Rob},
