@@ -21,11 +21,11 @@ class Trainer(object):
 	def __init__(self, neural_network):
 		self.classifier = neural_network
 
-	def train(self, learning_rate, n_epochs, batch_size, train_set_x, train_set_y, valid_set_x, valid_set_y):
+	def train(self, learning_rate, n_epochs, batch_size, train_set_x, train_set_y, valid_set_x=None, valid_set_y=None):
 		'''
 		Compiles functions for training, then trains.
 		As of right now, sticks to basic SGD on minibatches.
-		Returns average training cost and average validation cost of final model.
+		Returns average training cost and average validation cost of final model if a validation set is provided.
 		
 		TODO: Implement RPROP training algorithm or momentum?
 		
@@ -41,13 +41,14 @@ class Trainer(object):
 		y = T.ivector('y')
 		index = T.lscalar()
 
-		# compile validation function
-		validate_model = theano.function(inputs=[index], 
-			outputs=classifier.errors(y),
-			givens={
-				x: valid_set_x[index * batch_size:(index + 1) * batch_size],
-				y: valid_set_y[index * batch_size:(index + 1) * batch_size]
-			})
+		# compile validation function if you have a validation set
+		if valid_set_x is not None: 
+			validate_model = theano.function(inputs=[index], 
+				outputs=classifier.errors(y),
+				givens={
+					x: valid_set_x[index * batch_size:(index + 1) * batch_size],
+					y: valid_set_y[index * batch_size:(index + 1) * batch_size]
+				})
 
 
 		# Compute gradients
@@ -67,9 +68,8 @@ class Trainer(object):
 			})
 
 		# Then do the training and validation!
-		validation_frequency = n_train_batches
-
 		training_error = 0
+		validation_error = None
 		epoch = 0
 
 		start_time = time.clock()
@@ -85,8 +85,9 @@ class Trainer(object):
 					training_error += minibatch_error / n_train_batches
 
 		# get validation error
-		validation_errors = [validate_model(i) for i in xrange(n_valid_batches)]
-		validation_error = np.mean(validation_errors)
+		if valid_set_x is not None:
+			validation_errors = [validate_model(i) for i in xrange(n_valid_batches)]
+			validation_error = np.mean(validation_errors)
 
 		end_time = time.clock()
 
