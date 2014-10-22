@@ -1,0 +1,97 @@
+
+\documentclass{acm_proc_article-sp}
+
+\usepackage{amsmath}
+\usepackage{verbatim}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{url}
+
+
+\begin{document}
+
+\title{Difficult Handwritten Digit Classification \\
+{\normalsize Code available at: \url{https://github.com/slflmm/Miniproject-3}}} 
+\subtitle{COMP 598 -- Miniproject 3 -- Team X}
+
+\numberofauthors{3} 
+\author{
+% 1st. author
+\alignauthor 
+Narges Aghakazemjourabbaf\\
+	\affaddr{?}
+\alignauthor
+Stephanie Laflamme\\
+	\affaddr{260376691}
+% 2nd. author
+\alignauthor Benjamin La Schiazza\\
+	\affaddr{?}
+% 3rd. author
+}
+
+\date{Oct15}
+
+
+
+\maketitle
+\begin{abstract}
+
+\end{abstract}
+
+\section{Introduction}% overview of approach
+
+\section{Preprocessing}
+Standardization (x-mean/standard deviation)
+Contrast normalization
+
+\section{Feature Design and Selection}
+\subsection{Pixels}
+\subsection{Gabor}
+\cite{Bau}
+
+\section{Algorithm Selection}% for each category
+\subsection{Perceptron}
+
+\subsection{Neural Network}
+
+\subsection{Linear SVM}
+Use Scikit-learn implementation \cite{scikit-learn}
+
+\subsection{Convolutional Neural Network}
+Origin of convnets \cite{Fukushima}. We can see it has good invariance to rotation and resistance to noise with the MNIST dataset. \cite{LeCun}
+
+Problem of neural networks = overfitting. Regularization... (L1 + L2 norms). Dropout \cite{Hinton}
+Dropout in fully-connected layers of a convolutional net \cite{Krizhevsky}
+SGD with minibatches.
+Momentum.
+
+
+\section{Optimization} % if required
+GPU for convolutional network -- Theano \cite{Theano}
+
+\section{Parameter Selection Method}% model order, learning rate, etc
+Gridsearch 
+
+Random search \cite{Bergstra}
+
+\section{Testing and Validation}%detailed analysis of results
+
+\section{Discussion}% pros/cons of approach & methodology (and alternatives)
+Using Gabor filters as a kernel rather than feature \cite{Sabri}
+
+Other version of dropout \cite{Wan}
+
+Pretraining \cite{Erhan}
+
+Others: \cite{Rowley}, \cite{Simard}
+
+{\bfseries We hereby state that all the work presented in this report is that of the authors.}
+
+\bibliographystyle{abbrv}
+\bibliography{references}
+
+\appendix
+
+\balancecolumns
+\end{document}
