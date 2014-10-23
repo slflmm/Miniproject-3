@@ -38,7 +38,7 @@ print 'Beginning gridsearch...'
 
 # the parameter values under consideration
 alphas = [0.5, 0.1, 0.05, 0.01, 0.005, 0.001]
-n_iters = [5, 10, 20, 40, 80, 160]
+n_iters = [5, 10, 20, 40, 80]
 
 # this is where we'll save the cross-validation results
 cross_val_results = []
@@ -60,12 +60,12 @@ for alpha in alphas:
 
 		    training_guesses = map(classifier.predict, train_data)
 		    training_correct = filter(lambda x: x[0] == x[1], zip(training_guesses, train_result))
-		    training_ratio = len(training_correct) / len(train_result)
+		    training_ratio = len(training_correct)*1. / len(train_result)
 		    train_success_rates.append(training_ratio)
 
 		    guesses = map(classifier.predict, valid_data)
 		    correct = filter(lambda x: x[0] == x[1], zip(guesses, valid_result))
-		    ratio = len(correct) / len(valid_result)
+		    ratio = len(correct)*1. / len(valid_result)
 		    success_rates.append(ratio)
 
 		    predictions.extend(guesses)
