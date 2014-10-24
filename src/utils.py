@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 
 class CrossValidation(object):
     '''
@@ -44,6 +45,16 @@ def get_confusion_matrix(actual, predicted):
     	m[i] = m[i]*1. / class_totals[i]*1.
 
     return m
+
+def write_test_output(output_data):
+    '''
+    Writes a set of predictions to file
+    '''
+    with open('test_output.csv', 'wb') as fp:
+        writer = csv.writer(fp, quoting=csv.QUOTE_ALL)
+        writer.writerow(['Id', 'Prediction'])  # write header
+        for i, category in enumerate(output_data):
+            writer.writerow((str(i+1), category))
 
 def step(x):
 	'''
