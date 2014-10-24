@@ -1,28 +1,30 @@
 from skimage.filter import gabor_kernel
 import numpy as np
+from numpy import linalg
 from skimage import data
 from scipy import ndimage
 from skimage.util import img_as_float
 from sklearn.svm import SVC
 from sklearn import preprocessing
+from sklearn import decomposition
 from sklearn.preprocessing import normalize
 import csv
 import copy
 import random
 
+import matplotlib.pyplot as plt 
+import matplotlib.gridspec as gridspec
+
 
 '''
-	Taken from an example @ http://scikit-image.org/docs/dev/auto_examples/plot_gabor.html
+	Feature value = energy of response (sum of squares) aka Frobeniius norm
 '''
 def get_gabor_features(image, gaborKernels):
-	features = np.zeros((len(gaborKernels), 2), dtype = np.double)
-	count = 0
-	for k in gaborKernels:
-		filt = ndimage.convolve(image, k, mode='wrap')
-		features[count, 0] = filt.mean()
-		features[count, 1] = filt.var()
-		count = count + 1
-	return features.flatten()
+	features = []
+	for i, k in enumerate(gaborKernels):
+		filt = ndimage.convolve(image.reshape(48,48), k, mode='wrap')
+		features.append(linalg.norm(filt))
+	return features
 
 '''
 	Generates kernels to be used in feature extraction or as a kernel for SVM.
@@ -32,12 +34,12 @@ def get_gabor_features(image, gaborKernels):
 	freqMin: float, min frequency to start off with (eg. 0.05)
 	freqMax: float, max frequency to end with (eg. 0.25)
 '''
-def getGaborKernels(numTheta, sigmaMin, sigmaMax, freqMin, freqMax):
+def getGaborKernels(n_theta = 4, sigmas=[1,3], frequencies=[0.05, 0.25]):
 	gaborKernels = []
-	for theta in range(numTheta):
-		theta = theta / float(numTheta) * np.pi
-		for sigma in (sigmaMin, sigmaMax):
-			for frequency in (freqMin, freqMax):
+	for theta in range(n_theta):
+		theta = theta / float(n_theta) * np.pi
+		for sigma in sigmas:
+			for frequency in frequencies:
 				kernel = np.real(gabor_kernel(frequency, theta, sigma_x = sigma, sigma_y = sigma))
 				gaborKernels.append(kernel)
 	return gaborKernels
@@ -87,19 +89,68 @@ def one_hot_vectorizer(n):
 	return v
 
 
-# kernels = getGaborKernels(4, 1, 3, 0.05, 0.25)
-# shrink = (slice(0,None,3), slice(0,None,3))
-# gabor_set = []
-# for i in xrange(len(trainInput)):
-# 	index = i + 1
-# 	print index
-# 	img = img_as_float(data.load("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/MP3Data/train_images/" + str(index) + ".png"))
-# 	print img
-# 	feats = get_features(img, kernels)
-# 	gabor_set.append(feats)
 
-# print "saving kernel feature set..."
-# np.save('gabor_feats', gabor_set)
+def save_train_features():
+	# ------------------------
+	# Loading raw training set
+	# ------------------------
+	print "Loading train output..."
+	train_output = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/train_outputs.npy")
+
+	print "Loading train input..."
+	train_input = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/train_inputs.npy")
+
+	# ----------------------
+	# Standardizing features (and saving)
+	# ----------------------
+	print "Standardizing features (x-mean / sigma)..."
+	# keep the scaling so that we can later use it on the test set!
+	scaler = preprocessing.StandardScaler().fit(train_input)
+	examples = scaler.transform(train_input)
+	np.save('train_inputs_standardized', examples)
+
+	# -----------------------
+	# PCA features (and saving)
+	# -----------------------
+	print "Getting PCA features..."
+	pca = decomposition.PCA()
+	examples = pca.fit_transform(examples)
+	np.save('train_inputs_pca', examples)
+
+	# --------------
+	# Gabor features
+	# --------------
+	print "Get gabor features using default values"
+	examples = loadnp("/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/train_inputs_standardized.npy")
+	examples = map(lambda x: get_gabor_features(x, getGaborKernels()), examples)
+	print "Normalizing..."
+	scaler = preprocessing.StandardScaler().fit(examples)
+	examples = scaler.transform(examples)
+	np.save('train_inputs_gabor', examples)
+
+def save_test_features():
+	print "Loading train input..."
+	train_input = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/train_inputs.npy")
+	train_standardized = loadnp("/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_standardized.npy")
+
+	print "Loading test input..."
+	test_input = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/test_inputs.npy")
+
+	# use the scaling from the training set
+	print "Getting standardized features..."
+	scaler = preprocessing.StandardScaler().fit(train_input)
+	examples = scaler.transform(test_input)
+	np.save('test_inputs_standardized', examples)
+
+	print "Getting PCA features..."
+	pca = decomposition.PCA()
+	pca.fit(train_standardized)
+	examples = pca.transform(examples)
+	np.save('test_inputs_pca', examples)
+
+
+
+# save_test_features()
 
 #(validSet, trainSet, validSetY, trainSetY) = splitValidTest(trainInput, trainOutput, 0.1)
 #print "done splitting... "
