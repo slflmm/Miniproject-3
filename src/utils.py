@@ -41,7 +41,7 @@ def get_confusion_matrix(actual, predicted):
     class_totals = np.sum(m, axis=1)
 
     for i in xrange(10):
-    	m[i] /= class_totals[i]
+    	m[i] = m[i]*1. / class_totals[i]*1.
 
     return m
 

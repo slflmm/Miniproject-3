@@ -1,6 +1,7 @@
 from basic_classifiers import *
 from features import *
 from sklearn import preprocessing
+from sklearn import decomposition
 from utils import *
 
 
@@ -23,6 +24,19 @@ examples = scaler.transform(train_input)
 np.save('standardized_train_inputs', examples)
 
 # -----------------------
+# PCA features (and saving)
+# -----------------------
+# print "Getting PCA features..."
+# pca = decomposition.PCA()
+# examples = pca.fit_transform(examples)
+
+# ----------------------
+# Gabor features
+# --------------
+print "Get gabor features"
+examples = map(get_gabor_features, examples)
+
+# -----------------------
 # Getting one-hot outputs (and saving)
 # -----------------------
 # print "Saving training outputs as one-hot vectors..."
@@ -37,16 +51,18 @@ categories = train_output
 print 'Beginning gridsearch...'
 
 # the parameter values under consideration
-alphas = [0.5, 0.1, 0.05, 0.01, 0.005, 0.001]
-n_iters = [5, 10, 20, 40, 80]
+# alphas = [0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]
+# n_iters = [10, 15, 20, 25, 30, 35]
+alphas = [0.001]
+n_iters = [15]
 
 # this is where we'll save the cross-validation results
 cross_val_results = []
 cross_val_train_results = []
 cross_val_confusion_matrices = []
 
-for alpha in alphas:
-	for n_iter in n_iters:
+for n_iter in n_iters:
+	for alpha in alphas:
 		predictions = []
 		success_rates = []
 		train_success_rates = []
@@ -82,9 +98,9 @@ for alpha in alphas:
 		cross_val_train_results.append(train_success_ratio)
 
 # save all the interesting results
-np.save('perceptron_crossval_confmatrices', cross_val_confusion_matrices)
-np.save('perceptron_crossval_results', cross_val_results)
-np.save('perceptron_crossval_training_accuracy', cross_val_train_results)
+np.save('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/results/perceptron_crossval_confmatrices', cross_val_confusion_matrices)
+np.save('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/results/perceptron_crossval_results', cross_val_results)
+np.save('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/results/perceptron_crossval_training_accuracy', cross_val_train_results)
 
 
 

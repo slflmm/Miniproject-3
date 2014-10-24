@@ -7,23 +7,23 @@ from matplotlib.pylab import *
 # ------------------
 
 # these were the parameters considered
-alphas = np.array([0.5, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001])
-niters = np.array([5, 10, 15, 20, 25])
+alphas = np.array([0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001])
+niters = np.array([10, 15, 20, 25, 30, 35])
 
 # load crossval results
-crossval_results = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/perceptron_crossval_results1.npy')
+crossval_results = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/results/perceptron_crossval_results.npy')
 
-crossval_matrices = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/perceptron_crossval_confmatrices1.npy')
+crossval_matrices = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/results/perceptron_crossval_confmatrices.npy')
 
-crossval_training = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/perceptron_crossval_training_accuracy1.npy')
+crossval_training = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/src/results/perceptron_crossval_training_accuracy.npy')
 
 # ------------
 # Best results
 # ------------
 argmax = np.argmax(crossval_results)
 best = np.max(crossval_results)
-best_alpha = alphas[argmax % 8]
-best_niters = niters[argmax / 8]
+best_alpha = alphas[argmax % 7]
+best_niters = niters[argmax / 7]
 print 'Best PERCEPTRON: '
 print 'accuracy = %f' % best
 print 'alpha = %f' % best_alpha
@@ -43,7 +43,7 @@ ax1.set_ylabel('Number of iterations')
 ax1.set_xticks(alphas)
 ax1.set_yticks(niters)
 
-cax = ax1.contourf(alphas, niters, accuracies, np.arange(20, 27, 0.25), extend='both')
+cax = ax1.contourf(alphas, niters, accuracies, np.arange(21, 27, 0.5), extend='both')
 # cs=ax1.contour(alphas, niters, accuracies, np.arange(20,27,0.25),colors='k')
 # ax1.clabel(cs, fmt = '%d', colors = 'k')
 
@@ -82,8 +82,8 @@ plt.savefig('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/report/perce
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
-valid_acc = crossval_results[(argmax/8)*8:(argmax/8)*8 + 8]
-train_acc = crossval_training[(argmax/8)*8:(argmax/8)*8 + 8]
+valid_acc = crossval_results[(argmax/7)*7:(argmax/7)*7 + 7]
+train_acc = crossval_training[(argmax/7)*7:(argmax/7)*7 + 7]
 
 v, = ax.plot(alphas, valid_acc, marker='D', color='green', label='Validation, %d iterations' % best_niters)
 t, = ax.plot(alphas, train_acc, marker='D', color='green', linestyle=':', label='Training, %d iterations' % best_niters)
@@ -108,10 +108,10 @@ ax = fig.add_subplot(1,1,1)
 
 valid_acc = []
 for i in xrange(len(niters)):
-	valid_acc.append(crossval_results[8*i + argmax%8])
+	valid_acc.append(crossval_results[7*i + argmax%7])
 train_acc = []
 for i in xrange(len(niters)):
-	train_acc.append(crossval_training[8*i + argmax%8])
+	train_acc.append(crossval_training[7*i + argmax%7])
 
 v, = ax.plot(niters, valid_acc, marker='D', color='green', label='Validation, alpha=%5.4f' % best_alpha)
 t, = ax.plot(niters, train_acc, marker='D', color='green', linestyle=':', label='Training, alpha=%5.4f' % best_alpha)
