@@ -76,31 +76,55 @@ Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters 
 
 \section{Algorithm Selection}% for each category
 \subsection{Perceptron}
-We implement a multiclass perceptron as a baseline classifier. Given $n$ examples with $m$ features each, the perceptron 
+We implement a multiclass perceptron as a baseline classifier. Given $n$ examples with $m$ features each, and given $k$ classes, the perceptron learns a matrix $W$ of $m \times k$ weights (one for each feature-class combination) by gradient descent on the error $$Err(x) = (y - f(W^Tx)),$$
+where $f$ is the Heaviside step function.
 
-\subsection{Neural Network}
+\subsection{Fully-Connected Neural Network}
 
 \subsection{Linear SVM}
 Use Scikit-learn implementation \cite{scikit-learn}
 
 \subsection{Convolutional Neural Network}
-Origin of convnets \cite{Fukushima}. We can see it has good invariance to rotation and resistance to noise with the MNIST dataset. \cite{LeCun}
+Although fully-connected neural networks tend to perform very well at machine learning tasks, their ability to classify images can be very affected by shifts in position or shape distortions--in other words, they can be bad at identifying invariant patterns. In the early '80s, Fukushima introduced convolution layers to remedy that problem and handle geometrical similarities regardless of position.\cite{Fukushima} In effect, a convolution acts as a filter applied to an image's raw pixels; a convolution layer contains many such filters, whose weights are learned as the neural network is trained. This serves as an implicit, learned feature extraction at the start of the neural network, typically followed by hidden layers.
 
-Problem of neural networks = overfitting. Regularization... (L1 + L2 norms). Dropout \cite{Hinton}
-Dropout in fully-connected layers of a convolutional net \cite{Krizhevsky}
-SGD with minibatches.
-Momentum.
+The use of convolution layers seem particularly appropriate given the difficulty of our dataset, which adds noise-inducing modifications to the MNIST dataset. Indeed, LeCun has shown that a convolutional neural network trained with MNIST images continues to predict digits correctly regardless of rotations and noise.\cite{LeCun}
 
+It should be noted, however, that neural networks with many layers tend to overfit; there may be many complicated relationships between examples and their labels, and enough hidden units to model these relationships in multiple ways. Hinton et al. introduced the concept of dropout. During training, hidden units are randomly omitted with probability $p$, which helps prevent complex co-adaptations on training data. The combination of dropout with L2 normalization on a neural network trained with minibatch SGD gave Hinton et al. better results than without dropout.\cite{Hinton}  
+
+This idea has been successfully applied to a convolutional neural network; using a network with convolution layers followed by hidden layers, Krizhevsky et al. applied dropout to the hidden layer weights, and vastly outperformed other methods on an ImageNet classification competition.\cite{Krizhevsky} 
+
+In light of these findings, we implement our own convolutional neural network. Its architecture consists of a variable number of convolution layers, followed by a variable number of hidden layers and the output layer. We apply dropout to the hidden layers, and train our network using minibatch SGD, with L2 regularization.
 
 \section{Optimization} % if required
-GPU for convolutional network -- Theano \cite{Theano}
+Given the vast amount of time required to train a convolutional neural network, we implement ours to run on a GPU, which allows us to increase the speed of training by approximately factor of 10. We make use of Theano\cite{Theano}, a symbolic Python library that enables compiling computation-heavy functions in C and running them on a GPU.
 
 \section{Parameter Selection Method}% model order, learning rate, etc
-Preliminary manual search followed by either:
+For each learner, we fix the hyperparameters to compare the performance of appropriate feature sets, and perform a preliminary manual inspection to identify viable hyperparameters, followed up by either the traditional gridsearch, or a random search. In cases where there are many hyperparameters and training is long, random search offers a faster alternative to gridsearch for finding good hyperparameters. It has been shown to obtain results as good as or better than gridsearch\cite{Bergstra}. The details of parameter selection are discussed in this section.
 
-Gridsearch 
+\subsection{Perceptron}
+The perceptron can use pixel, PCA, or Gabor features. We initially fix the hyperparameters to identify the most promising feature set. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35.
 
-Random search \cite{Bergstra}
+\subsection{Fully-Connected Neural Network}
+
+\subsection{Linear SVM}
+
+\subsection{Convolutional Neural Network}
+The only appropriate features for a convolutional neural network are pixel features. In this case, rather than using per-pixel standardization, we apply contrast normalization within images.
+
+We must optimize the following hyperparameters: 
+\begin{itemize}
+\item Number of layers of each type (convolution=\{1,2\}, hidden=\{1,2\})
+\item Size of filters (layer 1=\{5,7,10\}, layer2=)
+\item Size of each layer 
+\item Dropout rate ($p \in [0,1)$)
+\item Learning rate ($\alpha \in [0.0001, 0.5])$
+\item Number of training epochs ($n \in [200, 2000]$)
+\item Minibatch size
+\end{itemize}
+
+%In fact, to equalize computation at each layer, the product of the number of features and the number of pixel positions is typically picked to be roughly constant across layers. To preserve the information about the input would require keeping the total number of activations (number of feature maps times number of pixel positions) to be non-decreasing from one layer to the next (of course we could hope to get away with less when we are doing supervised learning).
+
+Due to time constraints, we can only sample a small portion of this very large hyperparameter space. Hence, we perform random search for parameter selection.
 
 \section{Testing and Validation}%detailed analysis of results
 
@@ -119,7 +143,7 @@ In a primary step, we performed 5-fold cross-validation to compare raw pixels, P
   \label{tab:perc-features}
 \end{table}
 
-Using (the best feature set), we performed 5-fold cross-validation over the learning rate $\alpha$ and the number of training iterations of the perceptron model. Figure \ref{fig:perc-gridsearch} shows the results of gridsearch with both parameters. The precise values of the best parameters found by the gridsearch cross-validation procedure were $\alpha = 0.0005$ with 25 training iterations, yielding a mean validation accuracy of 26.598\%.\footnote{Additional results showing training error vs validation error are shown in Appendix \ref{sec:additional-results}}
+Using PCA features, we performed 5-fold cross-validation over the learning rate $\alpha$ and the number of training iterations of the perceptron model. Figure \ref{fig:perc-gridsearch} shows the results of gridsearch with both parameters. The precise values of the best parameters found by the gridsearch cross-validation procedure were $\alpha = 0.0005$ with 25 training iterations, yielding a mean validation accuracy of 26.598\%.\footnote{Additional results showing training error vs validation error are shown in Appendix \ref{sec:additional-results}}
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{perceptron_gridsearch}
@@ -135,7 +159,7 @@ After training our perceptron on the complete training set using these parameter
   	\label{fig:perc-confusion}
 \end{figure}
 
-\subsection{Neural Network}
+\subsection{Fully-Connected Neural Network}
 Try a baseline net with the three feature sets, compare (5-fold cross-validation).
 
 Use the best feature set to find best hyperparameters with cross-validation. You should probably try random search rather than gridsearch (faster and just as good or better), for some set number of configurations. Use some graph to show the hyperparameter space results. Plot validation confusion matrix. Say the test set (kaggle) result using best model found during crossval.
@@ -143,9 +167,9 @@ Use the best feature set to find best hyperparameters with cross-validation. You
 \subsection{Linear SVM}
 
 \subsection{Convolutional Neural Network}
-Only appropriate features = raw pixels. Applied contrast normalization on top of standardization.
 
-Due to limited time, we can only sample a small sample of the hyperparameter space.
+
+SHOW THE FINAL NETWORK ARCHITECTURE
 
 \section{Discussion}% pros/cons of approach & methodology (and alternatives)
 Why is it better at classifying 0s and 1s? (Check number of examples in classes--could be Benford's law?
