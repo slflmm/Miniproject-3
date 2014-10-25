@@ -20,7 +20,7 @@
 % 1st. author
 \alignauthor 
 Narges Aghakazemjourabbaf\\
-	\affaddr{?}
+	\affaddr{260460855}
 \alignauthor
 Stephanie Laflamme\\
 	\affaddr{260376691}
@@ -40,6 +40,11 @@ Stephanie Laflamme\\
 \end{abstract}
 
 \section{Introduction}% overview of approach
+- Talk about the dataset and the difficulty with it
+
+- Discuss features
+
+- Discuss learners
 
 \section{Preprocessing}
 The raw pixels are standardized. For each example $i$ in the training set, and each feature $j$, we replace it with its standardized value $$x'_{ij} = \cfrac{x_{ij} - \mu_{j}}{\sigma_{j}}.$$
@@ -113,18 +118,19 @@ The only appropriate features for a convolutional neural network are pixel featu
 
 We must optimize the following hyperparameters: 
 \begin{itemize}
-\item Number of layers of each type (convolution=\{1,2\}, hidden=\{1,2\})
-\item Size of filters (layer 1=\{5,7,10\}, layer2=)
-\item Size of each layer 
-\item Dropout rate ($p \in [0,1)$)
-\item Learning rate ($\alpha \in [0.0001, 0.5])$
-\item Number of training epochs ($n \in [200, 2000]$)
+\item Number of layers of each type
+\item Size and number of filters 
+\item Size of hidden layers 
+\item Dropout rate 
+\item Learning rate 
+\item Number of training epochs
 \item Minibatch size
 \end{itemize}
 
-%In fact, to equalize computation at each layer, the product of the number of features and the number of pixel positions is typically picked to be roughly constant across layers. To preserve the information about the input would require keeping the total number of activations (number of feature maps times number of pixel positions) to be non-decreasing from one layer to the next (of course we could hope to get away with less when we are doing supervised learning).
-
 Due to time constraints, we can only sample a small portion of this very large hyperparameter space. Hence, we perform random search for parameter selection.
+
+Luckily, we can use heuristics to reduce our search space when it comes to the size of hidden layers and the size and number of filters per convolution layer. As discussed in class, the number of hidden units in a hidden layer should be around $\log(n\_inputs)$, where $n\_inputs$ is the number of connections going into the layer. Moreover, tips and tricks offered by Theano's deep learning tutorials note that, to preserve information across convolution layers, the value of (number of feature maps $\times$ number of incoming pixels) is usually chosen to be constant. As for the size of filters, it is suggested that $5 \times 5$ in the first layer works well with MNIST. \cite{Theano-tut}
+
 
 \section{Testing and Validation}%detailed analysis of results
 
