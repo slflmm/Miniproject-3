@@ -145,8 +145,8 @@ if __name__ == "__main__":
                 print("Minimum error reached at iteration {0}".format(i))
                 break
 
-    testInput = np.load('test_inputs.npy')
-    testInput = testInput[:10,:]
-    output = nnc.FeedForward(testInput)
+    #testInput = np.load('test_inputs.npy')
+    #testInput = testInput[:10,:]
+    output = nnc.FeedForward(trainingInput)
     for i in range(trainingInput.shape[0]):
         print("Output: {0}".format(output[i]))
