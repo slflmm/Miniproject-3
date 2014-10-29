@@ -43,11 +43,11 @@ print examples.shape
 # n_hiddenlayers = [1,2] # more than this and we have a time problem
 print "Starting cross-validation..."
 
-for data in CrossValidation(examples, categories, k=5):
+for data in CrossValidation(examples, categories, k=2):
 	train_data, train_result, valid_data, valid_result = data
 	print 'Building convnet...'
-	n_epochs = 800
-	batch_size = 1000
+	n_epochs = 400
+	batch_size = 500
 	net = ConvNet(rng = np.random.RandomState(1234),
 		# next image shape is (previous_image_shape - filter_size + 1) / poolsize
 		conv_filter_shapes = [(20, 1, 5, 5), (50, 20, 5,5)], #(22, 22) output, shape ()
@@ -68,7 +68,7 @@ for data in CrossValidation(examples, categories, k=5):
 	learner = Trainer(net)
 
 	print 'Training...'
-	trainerr, validerr = learner.train(0.05,n_epochs,batch_size)
+	trainerr, validerr = learner.train(0.1,n_epochs,batch_size)
 
 	print "Training error: %f" % trainerr
 	print "Validation error: %f" % validerr
