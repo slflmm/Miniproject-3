@@ -1,4 +1,6 @@
 import numpy as np
+import time
+
 
 import theano
 import theano.tensor as T
@@ -21,51 +23,53 @@ class Trainer(object):
 	def __init__(self, neural_network):
 		self.classifier = neural_network
 
-	def train(self, learning_rate, n_epochs, batch_size, train_set_x, train_set_y, valid_set_x=None, valid_set_y=None):
+	def train(self, 
+		learning_rate, 
+		n_epochs, 
+		batch_size):
 		'''
 		Compiles functions for training, then trains.
-		As of right now, sticks to basic SGD on minibatches.
+		Learns by doing SGD on minibatches.
 		Returns average training cost and average validation cost of final model if a validation set is provided.
 		
-		TODO: Implement RPROP training algorithm or momentum?
-		
 		You should cross-validate over:
-		- Learning learning_rate
+		- Learning rate
 		- Number of epochs 
-		- Batch size 
+		- Batch size
 		'''
-		n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
-		n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
 
-		x = T.tensor3('x')
-		y = T.ivector('y')
-		index = T.lscalar()
+		n_train_batches = self.classifier.train_set_x.get_value(borrow=True).shape[0] / batch_size
+		n_valid_batches = self.classifier.valid_set_x.get_value(borrow=True).shape[0] / batch_size
 
-		# compile validation function if you have a validation set
-		if valid_set_x is not None: 
-			validate_model = theano.function(inputs=[index], 
-				outputs=classifier.errors(y),
-				givens={
-					x: valid_set_x[index * batch_size:(index + 1) * batch_size],
-					y: valid_set_y[index * batch_size:(index + 1) * batch_size]
-				})
+		# x = T.matrix('x')
+		# y = T.ivector('y')
+		# index = T.lscalar()
 
+		# # compile validation function if you have a validation set
+		# if valid_set_x is not None and valid_set_y is not None: 
+		# 	validate_model = theano.function(inputs=[index], 
+		# 		outputs=self.classifier.errors(y),
+		# 		givens={
+		# 			x: valid_set_x[index * batch_size:(index + 1) * batch_size],
+		# 			y: valid_set_y[index * batch_size:(index + 1) * batch_size]
+		# 		},
+		# 		on_unused_input='ignore')
 
-		# Compute gradients
-		grads = T.grad(dropout_cost, self.classifier.params)
+		# # Compute gradients
+		# grads = T.grad(dropout_cost, self.classifier.params)
 
-		# SGD weights update
-		updates = [(param_i, param_i - learning_rate * grad_i) for param_i, grad_i in zip(params, grads)]
+		# # SGD weights update
+		# updates = [(param_i, param_i - learning_rate * grad_i) for param_i, grad_i in zip(params, grads)]
 
-		# Compile training function that returns training cost, and updates model parameters. 
-		train_output, train_errors = classifier.dropout_nll(y), classifier.dropout_errors(y)
-		train_model = theano.function(inputs=[index], 
-			outputs=[train_output, train_errors],
-			updates=updates,
-			givens={
-				x: train_set_x[index * batch_size:(index + 1) * batch_size],
-				y: train_set_y[index * batch_size:(index + 1) * batch_size]
-			})
+		# # Compile training function that returns training cost, and updates model parameters. 
+		# train_output, train_errors = self.classifier.dropout_nll(y), self.classifier.dropout_errors(y)
+		# train_model = theano.function(inputs=[index], 
+		# 	outputs=[train_output, train_errors],
+		# 	updates=updates,
+		# 	givens={
+		# 		x: train_set_x[index * batch_size:(index + 1) * batch_size],
+		# 		y: train_set_y[index * batch_size:(index + 1) * batch_size]
+		# 	})
 
 		# Then do the training and validation!
 		training_error = 0
@@ -80,13 +84,19 @@ class Trainer(object):
 			# train on all examples in minibatches 
 			# if you're on the last epoch, track your average error
 			for minibatch_index in xrange(n_train_batches):
-				minibatch_avg_cost, minibatch_error = train_model(minibatch_index)
+				minibatch_avg_cost, minibatch_error = self.classifier.train_model(minibatch_index)
 				if epoch == n_epochs:
 					training_error += minibatch_error / n_train_batches
 
+			# print 'Completed epoch %d. Code has run for %.2fm.' %(epoch, (time.clock() - start_time)/60)
+
+			if self.classifier.valid_set_x is not None and epoch%100==0:
+				validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
+				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors))
+
 		# get validation error
-		if valid_set_x is not None:
-			validation_errors = [validate_model(i) for i in xrange(n_valid_batches)]
+		if self.classifier.valid_set_x is not None:
+			validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
 			validation_error = np.mean(validation_errors)
 
 		end_time = time.clock()
@@ -102,7 +112,7 @@ class Trainer(object):
 		'''
 		# compile function to return prediction
 		predict_model = theano.function(inputs=[index],
-			outputs=classifier.output_layer.y_pred,
+			outputs=self.classifier.output_layer.y_pred,
 			givens={
 				x: test_set
 			})
