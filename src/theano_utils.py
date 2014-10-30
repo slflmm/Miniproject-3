@@ -44,7 +44,10 @@ def shared_dataset(train_x, train_y, valid_x=None, valid_y=None):
 
 	return shared_train_x, shared_train_y, shared_valid_x, shared_valid_y
 
-def get_final_image_size(filter_shapes, image_shapes):
-	current = (image_shapes[-1][2] - filter_shapes[-1][2] + 1)/2
+def get_final_image_size(filter_shapes, image_shapes, pool):
+	if pool is not None:
+		current = (image_shapes[-1][2] - filter_shapes[-1][2] + 1)/2
+	else:
+		current = image_shapes[-1][2] - filter_shapes[-1][2] + 1
 	return current*current
 

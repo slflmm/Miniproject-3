@@ -138,11 +138,14 @@ class ConvLayer(object):
 		)
 
 		# downsample each feature map individually, using maxpooling
-		pooled_out = downsample.max_pool_2d(
-		    input=conv_out,
-		    ds=poolsize,
-		    ignore_border=True
-		)
+		if poolsize is not None:
+			pooled_out = downsample.max_pool_2d(
+			    input=conv_out,
+			    ds=poolsize,
+			    ignore_border=True
+			)
+		else:
+			pooled_out = conv_out
 
 		# add the bias term. Since the bias is a vector (1D array), we first
 		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
@@ -218,7 +221,7 @@ class ConvNet(object):
 		# add the hidden layers 
 		hidden_count = 0
 		# number of kernels * new image size
-		n_in = conv_filter_shapes[-1][0] * get_final_image_size(conv_filter_shapes, image_shapes)
+		n_in = conv_filter_shapes[-1][0] * get_final_image_size(conv_filter_shapes, image_shapes, poolsizes[-1])
 		for n_out in hidden_layer_sizes:
 
 			# the dropout layers for training...
