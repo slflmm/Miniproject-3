@@ -43,7 +43,10 @@ print examples.shape
 # n_hiddenlayers = [1,2] # more than this and we have a time problem
 print "Starting cross-validation..."
 
-
+# Try to keep filter sizes 5-8
+# At least 10 filters per layer
+# 3 layers is good
+# Only one hidden layer required
 for data in CrossValidation(examples, categories, k=10):
 	train_data, train_result, valid_data, valid_result = data
 	print 'Building convnet...'
