@@ -106,17 +106,7 @@ train_output = loadnp("/home/ml/slafla2/Miniproject-3/src/train_outputs.npy")
 print "Loading train input..."
 train_input = loadnp("/home/ml/slafla2/Miniproject-3/src/train_inputs.npy")
 
-new_data = map(lambda x,y: add_perturbation(x,y), train_input, train_output)
-new_examples = np.asarray(map(lambda x: x[0], new_data))
-new_outputs = np.asarray(map(lambda y: y[1], new_data)) 
 
-# insert into old
-train_input_expanded = np.asarray(zip(train_input, new_examples)).reshape((2*len(train_input), -1))
-train_output_expanded = np.asarray(zip(train_output, new_outputs)).flatten()
-
-# save
-np.save('train_inputs_expanded', train_input_expanded)
-np.save('train_outputs_expanded', train_output_expanded)
 
 def save_train_features():
 	# ------------------------
@@ -155,6 +145,20 @@ def save_train_features():
 	scaler = preprocessing.StandardScaler().fit(examples)
 	examples = scaler.transform(examples)
 	np.save('train_inputs_gabor', examples)
+
+
+	# --------------------------------------
+	# Rotation-perturbed additional examples
+	# --------------------------------------
+	print "Generating new examples..."
+	new_data = map(lambda x,y: add_perturbation(x,y), train_input, train_output)
+	new_examples = np.asarray(map(lambda x: x[0], new_data))
+	new_outputs = np.asarray(map(lambda y: y[1], new_data)) 
+	print "Combining..."
+	train_input_expanded = np.asarray(zip(train_input, new_examples)).reshape((2*len(train_input), -1))
+	train_output_expanded = np.asarray(zip(train_output, new_outputs)).flatten()
+	np.save('train_inputs_expanded', train_input_expanded)
+	np.save('train_outputs_expanded', train_output_expanded)
 
 def save_test_features():
 	print "Loading train input..."
