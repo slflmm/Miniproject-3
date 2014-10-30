@@ -113,7 +113,10 @@ class ConvLayer(object):
 		# each unit in the lower layer receives a gradient from:
 		# "num output feature maps * filter height * filter width" /
 		#   pooling size
-		fan_out = (filter_shape[0] * np.prod(filter_shape[2:]) /
+		if poolsize is None:
+			fan_out = filter_shape[0] * np.prod(filter_shape[2:])
+		else: 
+			fan_out = (filter_shape[0] * np.prod(filter_shape[2:]) /
 		           np.prod(poolsize))
 		# initialize weights with random weights
 		W_bound = np.sqrt(6. / (fan_in + fan_out))
