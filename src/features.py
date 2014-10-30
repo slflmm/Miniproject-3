@@ -101,10 +101,10 @@ def add_perturbation(x, y):
 	return [dst, y]
 
 print "Loading train output..."
-categories = loadnp("/home/ml/slafla2/Miniproject-3/src/train_outputs.npy")
+train_outputs = loadnp("/home/ml/slafla2/Miniproject-3/src/train_outputs.npy")
 
 print "Loading train input..."
-examples = loadnp("/home/ml/slafla2/Miniproject-3/src/train_inputs.npy")
+train_inputs = loadnp("/home/ml/slafla2/Miniproject-3/src/train_inputs.npy")
 
 new_data = map(lambda x,y: add_perturbation(x,y), train_input, train_output)
 new_examples = np.asarray(map(lambda x: x[0], new_data))
