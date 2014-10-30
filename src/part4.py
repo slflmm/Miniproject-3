@@ -9,11 +9,11 @@ from utils import *
 # # Loading training set
 # # ------------------------
 print "Loading train output..."
-categories = loadnp("/home/ml/slafla2/Miniproject-3/src/train_outputs_expanded.npy")
+categories = loadnp("/home/ml/slafla2/Miniproject-3/src/train_outputs.npy")
 # print categories.shapes
 
 print "Loading train input..."
-examples = loadnp("/home/ml/slafla2/Miniproject-3/src/train_inputs_expanded.npy")
+examples = loadnp("/home/ml/slafla2/Miniproject-3/src/train_inputs.npy")
 
 def contrast_normalize(x):
 	min_x = min(x)
