@@ -55,7 +55,7 @@ for data in CrossValidation(examples, categories, k=10):
 	new_examples = np.asarray(map(lambda x: x[0], new_data))
 	new_outputs = np.asarray(map(lambda y: y[1], new_data)) 
 	print "Combining..."
-	train_input_expanded = np.asarray(zip(train_data, new_examples)).reshape((2*len(train_input), -1))
+	train_input_expanded = np.asarray(zip(train_data, new_examples)).reshape((2*len(train_data), -1))
 	train_output_expanded = np.asarray(zip(train_result, new_outputs)).flatten()
 	# np.save('train_inputs_expanded', train_input_expanded)
 	# np.save('train_outputs_expanded', train_output_expanded)
