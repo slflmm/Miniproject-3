@@ -80,7 +80,7 @@ The raw pixels are standardized. For each example $i$ in the training set, and e
 These values for $\mu_j$ and $\sigma_j$ are used to apply the same transformation to the test set examples.
 
 \section{Feature Design and Selection}
-When appropriate for the learner, we consider three feature sets; raw pixels, PCA, and Gabor filter-based features.
+When appropriate for the learner, we consider three feature sets; raw pixels, PCA, and Gabor filter-based features. For the open method, we consider contrast-normalized pixels, and add rotation-perturbed examples.
 
 \subsection{Pixels}
 We use the post-standardization pixel information as a baseline feature set.This produces feature vectors of length 2304. 
@@ -105,6 +105,8 @@ Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters 
   	\caption{Some Gabor filters}
   	\label{fig:gabor}
 \end{figure}
+
+\subsection{Perturbed}
 
 
 \section{Algorithm Selection}% for each category
@@ -135,30 +137,38 @@ Given the vast amount of time required to train a convolutional neural network, 
 For each learner, we fix the hyperparameters to compare the performance of appropriate feature sets, and perform a preliminary manual inspection to identify viable hyperparameters, followed up by either the traditional gridsearch, or a random search. In cases where there are many hyperparameters and training is long, random search offers a faster alternative to gridsearch for finding good hyperparameters. It has been shown to obtain results as good as or better than gridsearch\cite{Bergstra}. The details of parameter selection are discussed in this section.
 
 \subsection{Perceptron}
-The perceptron can use pixel, PCA, or Gabor features. We initially fix the hyperparameters to identify the most promising feature set. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35.
+The perceptron can use pixel, PCA, or Gabor features. We initially fix the hyperparameters to identify the most promising feature set using 5-fold cross-validation. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35; the averaged validation accuracy from 5-fold cross-validation is used as a measure of success for the hyperparameter setting. 
 
 \subsection{Fully-Connected Neural Network}
+The neural network can also use pixel, PCA, or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier using results from 5-fold cross-validation. Then, we perform random search for 15 hyperparameter settings selected over the space of hyperparameters; we use mean accuracy from 5-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|l|l|}
+    \hline 
+    {\bfseries Hyperparameter} & {\bfseries Values}\\
+    \hline \hline
+    Number of layers & \{1, 2\} \\
+    Hidden units per layer & \{10, 15, ..., 50\} \\
+    Learning rate & $(0, 0.1]$ \\
+    Momentum & $[0.1, 0.9]$ \\
+    Training epochs & $\{50, ..., 200\}$ \\
+    \hline
+  \end{tabular}
+  \caption{Neural network hyperparameters and their considered values}
+  \label{tab:nn-hyp}
+\end{table}
+
 
 \subsection{Linear SVM}
 
 \subsection{Convolutional Neural Network}
-The only appropriate features for a convolutional neural network are pixel features. In this case, rather than using per-pixel standardization, we apply contrast normalization within images.
+The only appropriate features for a convolutional neural network are pixel features. In this case, rather than using per-feature standardization, we apply contrast normalization within images.
 
-We must optimize the following hyperparameters: 
-\begin{itemize}
-\item Number of layers of each type
-\item Size and number of filters 
-\item Size of hidden layers 
-\item Dropout rate 
-\item Learning rate 
-\item Number of training epochs
-\item Minibatch size
-\end{itemize}
+We must optimize many hyperparameters; in addition to those for the fully-connected neural network, we must also consider the dropout rate, as well as the number of convolution layers, the number of filters per layer, and the filter sizes. Due to time constraints, we can only sample a small portion of this very large parameter space. Hence, we select hyperparameters with manual search.
 
-Due to time constraints, we can only sample a small portion of this very large hyperparameter space. Hence, we perform random search for parameter selection.
+Luckily, we can use heuristics to reduce our search space when it comes to the size of hidden layers and the size and number of filters per convolution layer. To start with, tips and tricks offered by Theano's deep learning tutorials note that, to preserve information across convolution layers, the value of (number of feature maps $\times$ number of incoming pixels) is usually chosen to be constant. Moreover, it is suggested that $5 \times 5$ filters in the first convolution layer work well with the MNIST dataset, while filter sizes of $12\times12$ or $15\times15$ work well with images with hundreds of pixels in each dimension.\cite{Theano-tut} Noting that MNIST images are $28\times28$ pixels, whereas our dataset's images are $48\times48$ pixels, we consider filter sizes ranging from $5\times 5$ to $8\times 8$. We begin with 3 convolution layers, with 20 to 50 filters per layer; we adjust the number of filters of later layers as a function of the values for the first layer.
 
-Luckily, we can use heuristics to reduce our search space when it comes to the size of hidden layers and the size and number of filters per convolution layer. As discussed in class, the number of hidden units in a hidden layer should be around $\log(n\_inputs)$, where $n\_inputs$ is the number of connections going into the layer. Moreover, tips and tricks offered by Theano's deep learning tutorials note that, to preserve information across convolution layers, the value of (number of feature maps $\times$ number of incoming pixels) is usually chosen to be constant. As for the size of filters, it is suggested that $5 \times 5$ in the first layer works well with MNIST. \cite{Theano-tut}
-
+We use one hidden layer; as discussed in class, with binary inputs, the number of hidden units in a hidden layer should be around $\log(n\_inputs)$, where $n\_inputs$ is the number of connections going into the layer. Since our inputs are not binary, we start with $10\times \log(n\_inputs)$ hidden units.
 
 \section{Testing and Validation}%detailed analysis of results
 
