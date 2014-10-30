@@ -43,22 +43,42 @@ print examples.shape
 # n_hiddenlayers = [1,2] # more than this and we have a time problem
 print "Starting cross-validation..."
 
-for data in CrossValidation(examples, categories, k=5):
+# Try to keep filter sizes 5-8
+# At least 10 filters per layer
+# 3 layers is good
+# Only one hidden layer required
+for data in CrossValidation(examples, categories, k=10):
 	train_data, train_result, valid_data, valid_result = data
+
+	# print "Generating new examples..."
+	# new_data = map(lambda x,y: add_perturbation(x,y), train_data, train_result)
+	# new_examples = np.asarray(map(lambda x: x[0], new_data))
+	# new_outputs = np.asarray(map(lambda y: y[1], new_data)) 
+	# print "Combining..."
+	# train_input_expanded = np.asarray(zip(train_data, new_examples)).reshape((2*len(train_data), -1))
+	# train_output_expanded = np.asarray(zip(train_result, new_outputs)).flatten()
+	# np.save('train_inputs_expanded', train_input_expanded)
+	# np.save('train_outputs_expanded', train_output_expanded)
+
 	print 'Building convnet...'
-	n_epochs = 800
-	batch_size = 1000
+	n_epochs = 400
+	batch_size = 500
+	learning_rate = 0.1
 	net = ConvNet(rng = np.random.RandomState(1234),
 		# next image shape is (previous_image_shape - filter_size + 1) / poolsize
-		conv_filter_shapes = [(20, 1, 5, 5), (50, 20, 5,5)], #(22, 22) output, shape ()
-		image_shapes = [(batch_size, 1,48,48),(batch_size, 20, 22, 22)], # (9, 9) output, shape (20,50,22,22)
-		poolsizes=[(2,2),(2,2)],
+		# after  (20,1,7,7) images are (48-7+1 = 42) --> 21 x 21, then (21-6+1 = 16) --> 8x8 
+		# after (20, 1, 5, 5) images are (48-5+1 = 44) --> 22 x 22, then (22-5+1 = 18) --> 9x9, then... 
+		conv_filter_shapes = [(20, 1, 7, 7), (50, 20, 6,6),[70, 50, 4, 4]], #(22, 22) output, shape ()
+		image_shapes = [(batch_size, 1,48,48),(batch_size, 20, 21, 21), (batch_size, 50, 8, 8)], # (9, 9) output, shape (20,50,22,22)
+		poolsizes=[(2,2),(2,2), None],
 		hidden_layer_sizes=[200],
 		n_outputs=10,
-		learning_rate=0.01,
+		learning_rate=learning_rate,
 		dropout_rate=0.5,
 		activations=[rectified_linear],
 		batch_size=batch_size,
+		# train_set_x = train_input_expanded,
+		# train_set_y = train_output_expanded,
 		train_set_x=train_data,
 		train_set_y=train_result,
 		valid_set_x=valid_data,
@@ -68,7 +88,7 @@ for data in CrossValidation(examples, categories, k=5):
 	learner = Trainer(net)
 
 	print 'Training...'
-	trainerr, validerr = learner.train(0.05,n_epochs,batch_size)
+	trainerr, validerr = learner.train(learning_rate,n_epochs,batch_size)
 
 	print "Training error: %f" % trainerr
 	print "Validation error: %f" % validerr

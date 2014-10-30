@@ -62,3 +62,17 @@ def step(x):
 	Works for numbers and arrays.
 	'''
 	return np.sign(x)
+	
+"----- Transfer Functions -----"
+def linear(x, firstLayer = True):
+    if firstLayer:
+        return x
+    else:
+        return 1.0
+
+def sigmoid(x, firstLayer = True):
+    if firstLayer:
+        return 1 / (1 + np.exp(-x))
+    else:
+        out = sigmoid(x)
+        return out * (1.0 - out)

@@ -90,7 +90,7 @@ class Trainer(object):
 
 			# print 'Completed epoch %d. Code has run for %.2fm.' %(epoch, (time.clock() - start_time)/60)
 
-			if self.classifier.valid_set_x is not None and epoch%100==0:
+			if self.classifier.valid_set_x is not None and epoch%10==0:
 				validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
 				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors))
 
