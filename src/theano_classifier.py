@@ -92,7 +92,7 @@ class Trainer(object):
 
 			if self.classifier.valid_set_x is not None and epoch%10==0:
 				validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
-				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors))
+				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors)/batch_size)
 
 		# get validation error
 		if self.classifier.valid_set_x is not None:
