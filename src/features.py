@@ -16,8 +16,6 @@ import itertools
 import matplotlib.pyplot as plt 
 import matplotlib.gridspec as gridspec
 
-import cv2
-
 
 '''
 	Feature value = energy of response (sum of squares) aka Frobeniius norm
@@ -40,7 +38,7 @@ def get_gabor_features(image, gaborKernels):
 			local_energy.append(energy)
 			amplitude_info.append(amp)
 		features.extend(local_energy)
-		amplitude_info
+		features.extend(amplitude_info)
 	#print features
 	return features
 
@@ -108,15 +106,7 @@ def one_hot_vectorizer(n):
 	v[n] = 1
 	return v
 
-def add_perturbation(x, y):
-	'''
-	Produces new training example from the given one, with a random rotation perturbation.
-	'''
-	cols, rows = 48,48
-	perturb = random.uniform(0,360)
-	M = cv2.getRotationMatrix2D((cols/2,rows/2),perturb,1)
-	dst = cv2.warpAffine(x.reshape(48,48),M,(cols,rows)).flatten()
-	return [dst, y]
+
 
 def save_train_features():
 	# ------------------------
@@ -160,20 +150,6 @@ def save_train_features():
 	#scaler = preprocessing.StandardScaler().fit(data)
 	#examples = scaler.transform(data)
 	np.save('train_inputs_gabor', data)
-
-
-	# --------------------------------------
-	# Rotation-perturbed additional examples
-	# --------------------------------------
-	print "Generating new examples..."
-	new_data = map(lambda x,y: add_perturbation(x,y), train_input, train_output)
-	new_examples = np.asarray(map(lambda x: x[0], new_data))
-	new_outputs = np.asarray(map(lambda y: y[1], new_data)) 
-	print "Combining..."
-	train_input_expanded = np.asarray(zip(train_input, new_examples)).reshape((2*len(train_input), -1))
-	train_output_expanded = np.asarray(zip(train_output, new_outputs)).flatten()
-	np.save('train_inputs_expanded', train_input_expanded)
-	np.save('train_outputs_expanded', train_output_expanded)
 
 def save_test_features():
 	print "Loading train input..."
