@@ -70,9 +70,9 @@ for data in CrossValidation(examples, categories, k=10):
 		# after  (20,1,7,7) images are (48-7+1 = 42) --> 21 x 21, then (21-6+1 = 16) --> 8x8 
 		# after (20, 1, 5, 5) images are (48-5+1 = 44) --> 22 x 22, then (22-5+1 = 18) --> 9x9, then... 
 		# (48-9+1=40) => 20x20, then (20-5+1 = 16)=> 8, then (8-5+1=4)=> 2
-		conv_filter_shapes = [(32, 1, 9, 9), (64, 32, 5, 5),[80, 64, 5, 5]], #(22, 22) output, shape ()
-		image_shapes = [(batch_size, 1,48,48),(batch_size, 32, 20, 20), (batch_size, 64, 8, 8)], # (9, 9) output, shape (20,50,22,22) #80*2*2=320 but not getting that
-		poolsizes=[(2,2),(2,2), (2,2)],
+		conv_filter_shapes = [(32, 1, 7, 7), (64, 32, 6, 6),[80, 64, 4, 4]], #(22, 22) output, shape ()
+		image_shapes = [(batch_size, 1,48,48),(batch_size, 32, 21, 21), (batch_size, 64, 8, 8)], # (9, 9) output, shape (20,50,22,22) #80*2*2=320 but not getting that
+		poolsizes=[(2,2),(2,2), None],
 		hidden_layer_sizes=[200],
 		n_outputs=10,
 		learning_rate=learning_rate,
