@@ -186,7 +186,7 @@ def convnet_visualize():
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 
-	epochs = range(10,350,10)
+	epochs = range(10,360,10)
 
 	convnet2 = [252.200000,190.500000,154.700000,130.500000,124.400000,119.100000,109.800000,105.000000,109.600000,107.600000,97.800000,98.200000,99.200000,100.600000,99.900000,95.900000,98.800000,93.200000] 
 	convnet2 = map(lambda x: 1 - x/500, convnet2)
@@ -201,14 +201,26 @@ def convnet_visualize():
 	convnet5= map(lambda x: 1 - x/500, convnet5)
 	convnet5 += [None]*(len(epochs)-len(convnet5))
 
+	convnet6 = [153.444444,95.888889,83.444444,74.333333,76.222222,70.000000,66.555556,71.111111,66.666667,65.000000,63.222222,63.222222,67.333333,61.888889,63.666667,64.222222,63.444444,64.666667,62.666667,67.000000,64.333333,58.555556,69.555556,65.444444,60.888889,64.444444,64.444444,60.222222,60.111111,64.444444,62.555556,64.000000,60.777778,65.333333,62.222222]
+	convnet6 = map(lambda x: 1 - x/500, convnet6)
+	convnet6 += [None]*(len(epochs)-len(convnet6))
+
+	convnet7 = [64.473684,48.894737,47.631579,43.684211,45.631579, 43.526316,39.315789,41.789474,41.526316,39.315789, 38.421053,36.894737,38.105263,39.315789,39.421053,37.578947,38.842105,40.526316,37.210526,37.000000,35.105263,37.210526,36.105263, 36.631579,38.421053,35.842105,37.842105,34.789474,36.684211]
+	convnet7 = map(lambda x: 1 - x/500, convnet7)
+	convnet7 += [None]*(len(epochs)-len(convnet7))
+
 	c2, = ax.plot(epochs, convnet2, marker='D', color='green', label='Basic')
 	c3, = ax.plot(epochs, convnet3, marker='x', color='red', label='Perturbed')
 	c4, = ax.plot(epochs, convnet4, marker='o', color='blue', label='Larger filters')
 	c5, = ax.plot(epochs, convnet5, marker='v', color='magenta', label='3 conv layers')
+	c6, = ax.plot(epochs, convnet6, marker='s', color='cyan', label='Larger alpha')
+	c7, = ax.plot(epochs, convnet7, marker='*', color='yellow', label='Smaller minibatch')
 
 	handles, labels = ax.get_legend_handles_labels()
 	ax.legend(handles, labels, loc=0)
 
+	ax.yaxis.set_ticks([0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1])
+	ax.yaxis.grid(b=True, which='both', color='black', linestyle='--')
 	# labels
 	ax.set_xlabel('Number of epochs')
 	ax.set_ylabel('Validation accuracy')
