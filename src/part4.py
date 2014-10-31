@@ -74,7 +74,7 @@ for data in CrossValidation(examples, categories, k=10):
 		conv_filter_shapes = [(32, 1, 7, 7), (64, 32, 6, 6),[80, 64, 4, 4]],#, [96, 80, 3, 3]], #(22, 22) output, shape ()
 		image_shapes = [(batch_size, 1,48,48),(batch_size, 32, 21, 21), (batch_size, 64, 8, 8)],#, (batch_size, 80, 5, 5)], # (9, 9) output, shape (20,50,22,22) #80*2*2=320 but not getting that
 		poolsizes=[(2,2),(2,2), None],
-		hidden_layer_sizes=[200s],
+		hidden_layer_sizes=[200],
 		n_outputs=10,
 		learning_rate=learning_rate,
 		dropout_rate=0.5,

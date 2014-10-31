@@ -308,7 +308,7 @@ class ConvNet(object):
 
 		# SGD weights update
 		# updates = [(param_i, param_i - learning_rate * grad_i) for param_i, grad_i in zip(self.params, self.grads)]
-		updates = gradient_updates_momentum(cost=self.dropout_nll(y), params=self.params, learning_rate=learning_rate, momentum=0.1)
+		updates = gradient_updates_momentum(cost=self.dropout_nll(y), params=self.params, learning_rate=learning_rate, momentum=0.9)
 
 		# Compile training function that returns training cost, and updates model parameters. 
 		train_output, train_errors = self.dropout_nll(y), self.dropout_errors(y)
