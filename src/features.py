@@ -16,8 +16,6 @@ import itertools
 import matplotlib.pyplot as plt 
 import matplotlib.gridspec as gridspec
 
-import cv2
-
 
 '''
 	Feature value = energy of response (sum of squares) aka Frobeniius norm
@@ -40,7 +38,7 @@ def get_gabor_features(image, gaborKernels):
 			local_energy.append(energy)
 			amplitude_info.append(amp)
 		features.extend(local_energy)
-		amplitude_info
+		features.extend(amplitude_info)
 	#print features
 	return features
 
@@ -108,15 +106,7 @@ def one_hot_vectorizer(n):
 	v[n] = 1
 	return v
 
-def add_perturbation(x, y):
-	'''
-	Produces new training example from the given one, with a random rotation perturbation.
-	'''
-	cols, rows = 48,48
-	perturb = random.uniform(0,360)
-	M = cv2.getRotationMatrix2D((cols/2,rows/2),perturb,1)
-	dst = cv2.warpAffine(x.reshape(48,48),M,(cols,rows)).flatten()
-	return [dst, y]
+
 
 def save_train_features():
 	# ------------------------
@@ -148,19 +138,18 @@ def save_train_features():
 	# --------------
 	# Gabor features
 	# --------------
-
-	# --------------------------------------
-	# Rotation-perturbed additional examples
-	# --------------------------------------
-	print "Generating new examples..."
-	new_data = map(lambda x,y: add_perturbation(x,y), train_input, train_output)
-	new_examples = np.asarray(map(lambda x: x[0], new_data))
-	new_outputs = np.asarray(map(lambda y: y[1], new_data)) 
-	print "Combining..."
-	train_input_expanded = np.asarray(zip(train_input, new_examples)).reshape((2*len(train_input), -1))
-	train_output_expanded = np.asarray(zip(train_output, new_outputs)).flatten()
-	np.save('train_inputs_expanded', train_input_expanded)
-	np.save('train_outputs_expanded', train_output_expanded)
+	print "Get gabor features using default values"
+	examples = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs_standardized.npy")
+	kernels = getGaborKernels()
+	data = []
+	for ex in examples:
+		f = get_gabor_features(ex, kernels)
+		data.append(f)
+		print len(data)
+	print "Normalizing..."
+	#scaler = preprocessing.StandardScaler().fit(data)
+	#examples = scaler.transform(data)
+	np.save('train_inputs_gabor', data)
 
 def save_test_features():
 	print "Loading train input..."
@@ -183,39 +172,27 @@ def save_test_features():
 	np.save('test_inputs_pca', examples)
 
 
-# save_train_features()
+save_train_features()
 # ------------------------
 # Getting test predictions using SVM and gabor features 
 # ------------------------
-# print "Get gabor features using default values"
-# examples = loadnp("/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_standardized.npy")
-# kernels = getGaborKernels()
-# data = []
-# for ex in examples:
-# 	f = get_gabor_features(ex, kernels)
-# 	data.append(f)
-# print "Normalizing..."
-# #scaler = preprocessing.StandardScaler().fit(data)
-# #examples = scaler.transform(data)
-# np.save('/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_gabor', data)
+trainInput = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs_gabor.npy")
+trainOutput = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_outputs.npy")
 
-# trainInput = loadnp("/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_gabor.npy")
-# trainOutput = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/train_outputs.npy")
+print "lengths features: " + str(len(trainInput[0]))
+print "lengths output: " + str(trainOutput[0])
 
-# print "lengths features: " + str(len(trainInput[0]))
-# print "lengths output: " + str(trainOutput[0])
+(validSet, trainSet, validSetY, trainSetY) = splitValidTest(trainInput, trainOutput, 0.1)
+print "done splitting... "
 
-# (validSet, trainSet, validSetY, trainSetY) = splitValidTest(trainInput, trainOutput, 0.1)
-# print "done splitting... "
+#(validSetY, trainSetY) = fixOutputs(validSetY, trainSetY)
+#print validSetY
+#print trainSetY
 
-# #(validSetY, trainSetY) = fixOutputs(validSetY, trainSetY)
-# #print validSetY
-# #print trainSetY
+print "Testing using pixel features... training..."
+clf = SVC(kernel='linear')
+clf.fit(trainSet, trainSetY)
 
-# print "Testing using gabor features... training..."
-# clf = SVC(kernel='linear')
-# clf.fit(trainSet, trainSetY)
-
-# print "checking against Valid Set..."
-# acc = clf.score(validSet, validSetY)
-# print acc
+print "checking against Valid Set..."
+acc = clf.score(validSet, validSetY)
+print acc

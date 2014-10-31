@@ -1,23 +1,14 @@
 import numpy as np
-import math
-import random
 import utils
 
 "----- Neural Network Classifier -----"
 class NeuralNetworkClassifier:
 
     layerCount = 0
-    nFeatures = 2303
+    nBatchSize = 500
     shape = None
     weights = []
     transferFuncs = []
-
-    alphas = [0.1, 0.01, 0.001, 0.005, 0.0001, 0.0005, 0.00001, 0.00005, 0.000001, 0.000005]
-    betas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    _nodes = math.floor(math.log2(nFeatures))
-    nodesPerLayer = [_nodes+10, _nodes+20, _nodes+30, _nodes+40, _nodes+50, _nodes+60, _nodes+70, _nodes+80, _nodes+90, _nodes+100]
-    iterations = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
-    layers = [1, 2]
 
     "----- Initialization -----"
     def __init__(self, layerSize):
@@ -64,7 +55,8 @@ class NeuralNetworkClassifier:
     def Learning(self, input, target, alpha = 0.1, beta = 0.5):
         delta = []
 
-        self.FeedForward(input)
+        yPredit = self.FeedForward(input)
+        accuracy = self.Evaluate(yPredit, target.T)
 
         "Compute delta updates in decreasing order of the layers"
         for index in reversed(range(self.layerCount)):
@@ -98,59 +90,16 @@ class NeuralNetworkClassifier:
 
             self._prevDeltaWeight[index] = deltaWeight
 
-        return error
+        return accuracy
 
-    def RandHyperParams(self):
+    def Evaluate(self, yPredict, yActual):
 
-        alpha = random.choice(self.alphas)
-        beta = random.choice(self.betas)
-        nodes = random.choice(self.nodesPerLayer)
-        iters = random.choice(self.iterations)
-        layers = random.choice(self.layers)
-        print(alpha, beta, nodes, iters, layers)
-        return alpha, beta, nodes, iters, layers
+        y = []
 
-    #def RunCrossValidation(self, trainingInput, trainingOutput, 5):
+        for i in range(yActual.shape[0]):
+            y.append(np.argmax(yPredict[i]))
 
-    #    cv = utils.CrossValidation(trainingInput, trainingOutput, 5)
+        accuracy = np.sum(y == yActual)
+        accuracy /= yActual.shape[0]
 
-
-if __name__ == "__main__":
-    trainingInput = np.load('train_inputs.npy')
-    trainingOutput = np.load('train_outputs.npy')
-
-    #test on first 10 samples
-    trainingInput = trainingInput[:100,:]
-    trainingOutput = trainingOutput[:100]
-
-    nFeatures = trainingInput.shape[1]
-
-    nnc = NeuralNetworkClassifier((nFeatures, 20, 10))
-
-    #nnc.RunCrossValidation(trainingInput, trainingOutput, 5)
-
-    for i in range(15):
-        alpha, beta, nodes, iters, layers = nnc.RandHyperParams()
-
-        cv = utils.CrossValidation(trainingInput, trainingOutput, 5)
-
-        for j in range(5):
-            xTrain, yTrain, xValid, yValid = cv.next()
-            if layers == 1:
-                nnc = NeuralNetworkClassifier((nFeatures, nodes, 10))
-            else:
-                nnc = NeuralNetworkClassifier((nFeatures, nodes, nodes, 10))
-
-            for i in range(iters + 1):
-                err = nnc.Learning(xTrain, yTrain, alpha, beta)
-
-    testOutput = nnc.FeedForward(trainingInput)
-    for i in range(trainingInput.shape[0]):
-        print("{0}: {1}".format(i, np.argmax(testOutput[i])))
-
-    print("-------------")
-    testInput = np.load('test_inputs.npy')
-    testInput = testInput[:10,:]
-    testOutput = nnc.FeedForward(testInput)
-    for i in range(testInput.shape[0]):
-        print("{0}: {1}".format(i, np.argmax(testOutput[i])))
+        return accuracy
