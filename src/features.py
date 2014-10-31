@@ -148,19 +148,6 @@ def save_train_features():
 	# --------------
 	# Gabor features
 	# --------------
-	print "Get gabor features using default values"
-	examples = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs_standardized.npy")
-	kernels = getGaborKernels()
-	data = []
-	for ex in examples:
-		f = get_gabor_features(ex, kernels)
-		data.append(f)
-		print len(data)
-	print "Normalizing..."
-	#scaler = preprocessing.StandardScaler().fit(data)
-	#examples = scaler.transform(data)
-	np.save('train_inputs_gabor', data)
-
 
 	# --------------------------------------
 	# Rotation-perturbed additional examples
@@ -196,27 +183,39 @@ def save_test_features():
 	np.save('test_inputs_pca', examples)
 
 
-save_train_features()
+# save_train_features()
 # ------------------------
 # Getting test predictions using SVM and gabor features 
 # ------------------------
-trainInput = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs_gabor.npy")
-trainOutput = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_outputs.npy")
+# print "Get gabor features using default values"
+# examples = loadnp("/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_standardized.npy")
+# kernels = getGaborKernels()
+# data = []
+# for ex in examples:
+# 	f = get_gabor_features(ex, kernels)
+# 	data.append(f)
+# print "Normalizing..."
+# #scaler = preprocessing.StandardScaler().fit(data)
+# #examples = scaler.transform(data)
+# np.save('/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_gabor', data)
 
-print "lengths features: " + str(len(trainInput[0]))
-print "lengths output: " + str(trainOutput[0])
+# trainInput = loadnp("/Users/stephanielaflamme/Desktop/Numpy sets/train_inputs_gabor.npy")
+# trainOutput = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/train_outputs.npy")
 
-(validSet, trainSet, validSetY, trainSetY) = splitValidTest(trainInput, trainOutput, 0.1)
-print "done splitting... "
+# print "lengths features: " + str(len(trainInput[0]))
+# print "lengths output: " + str(trainOutput[0])
 
-#(validSetY, trainSetY) = fixOutputs(validSetY, trainSetY)
-#print validSetY
-#print trainSetY
+# (validSet, trainSet, validSetY, trainSetY) = splitValidTest(trainInput, trainOutput, 0.1)
+# print "done splitting... "
 
-print "Testing using pixel features... training..."
-clf = SVC(kernel='linear')
-clf.fit(trainSet, trainSetY)
+# #(validSetY, trainSetY) = fixOutputs(validSetY, trainSetY)
+# #print validSetY
+# #print trainSetY
 
-print "checking against Valid Set..."
-acc = clf.score(validSet, validSetY)
-print acc
+# print "Testing using gabor features... training..."
+# clf = SVC(kernel='linear')
+# clf.fit(trainSet, trainSetY)
+
+# print "checking against Valid Set..."
+# acc = clf.score(validSet, validSetY)
+# print acc
