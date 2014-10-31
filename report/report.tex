@@ -74,13 +74,43 @@ Stephanie Laflamme\\
 
 - Discuss learners
 
-\section{Preprocessing}
-The raw pixels are standardized. For each example $i$ in the training set, and each feature $j$, we replace it with its standardized value $$x'_{ij} = \cfrac{x_{ij} - \mu_{j}}{\sigma_{j}}.$$
 
-These values for $\mu_j$ and $\sigma_j$ are used to apply the same transformation to the test set examples.
+\section{Algorithm Selection}% for each category
+As our preprocessing treatment and feature sets vary between our choices of learning algorithms, we introduce the four here; we use a perceptron, a fully-connected neural network, a linear SVM, and a convolutional neural network.
+
+\subsection{Perceptron}
+We implement a multiclass perceptron as a baseline classifier. Given $n$ examples with $m$ features each, and given $k$ classes, the perceptron learns a matrix $W$ of $(m+1) \times k$ weights (one weight for each feature-class combination, and a bias vector) by gradient descent on the error $$Err(x) = (y - f(W^Tx)),$$
+where $f$ is the Heaviside step function, $x$ is an example, and $y$ is its class.
+
+\subsection{Fully-Connected Neural Network}
+The fully-connected neural network, also known as a multilayer perceptron, concatenates layers of perceptrons, but uses a softer activation function than the step function. The advantage of this arrangement over a single layer is that complex, non-linear functions can be learned; for instance, a linear learner cannot encode the XOR function, but a neural network can do it with only two layers. Our implementation uses the easily differentiable sigmoid, written $$\sigma(z) = \cfrac{1}{1 + e^{-z}}.$$ The weights of each layer are learned by gradient descent on the sum-squared error, $$Err(x) = \frac{1}{2}(y - h_w(x))^2,$$ where $h_w(x)$ is the network's current guess for the label of example $x$ and $y$ is its true label.
+
+\subsection{Linear SVM}
+We use the scikit-learn \cite{scikit-learn} library's `SVC' implementation of a linear SVM (support vector machine). This learning algorithm solves the quadratic optimization problem written as
+\begin{align*} 
+\hbox{arg} \min_{w,b} \|w\|^2 \\
+\hbox{subject to } y_i(w \cdot x_i - b) \geq 1,
+\end{align*}
+where $w$ is the normal vector to the hyperplane separating two classes. It handles the dataset's multiple classes using a `one-vs-the-rest' approach.
+
+\subsection{Convolutional Neural Network}
+Although fully-connected neural networks tend to perform very well at machine learning tasks, their ability to classify images is sensitive to shifts in position or shape distortions--they can be bad at identifying invariant patterns. In the early '80s, Fukushima introduced convolution layers to remedy that problem by handling geometrical similarities regardless of position.\cite{Fukushima} A convolution applies a filter to an image; a convolution layer contains many such filters, whose values are learned as the neural network is trained. This serves as an implicit, learned feature extraction at the start of the neural network, typically followed by hidden layers.
+
+The use of convolution layers seem particularly appropriate given the difficulty of our dataset, which adds noise-inducing modifications to the MNIST dataset. Indeed, LeCun has shown that a convolutional neural network trained with MNIST images continues to predict digits correctly regardless of rotations and noise.\cite{LeCun}
+
+We note that neural networks with many layers tend to overfit; there may be many complicated relationships between examples and their labels, and enough hidden units to model these relationships in multiple ways. Hinton et al.\cite{Hinton} introduced the concept of dropout to alleviate this issue. During training, hidden units are randomly omitted with probability $p$, which helps prevent complex co-adaptations on training data. 
+
+The application of dropout to convolutional neural network has been successfully applied; Krizhevsky et al. applied dropout to the hidden layer weights of their convolutional neural network, and vastly outperformed other methods on an ImageNet classification competition.\cite{Krizhevsky} 
+
+In light of these findings, we implement our own convolutional neural network. Its architecture consists of a variable number of convolution layers, followed by a variable number of hidden layers and the output layer. We apply dropout to the hidden layers, and train our network using minibatch SGD. We also experiment with the use of learning rate decay and momentum.
+
+\section{Preprocessing}
+The raw pixels are normalized. In the case of the perceptron, fully-connected neural network, and linear SVM learners, they are standardized. For each example $i$ in the training set, and each feature $j$, we replace features with their standardized value $$x'_{ij} = \cfrac{x_{ij} - \mu_{j}}{\sigma_{j}},$$ where $\mu_j$ is the average value for feature $j$ and $\sigma_j$ is its standard deviation. These values for $\mu_j$ and $\sigma_j$ are subsequently used to apply the same transformation to the test set examples.
+
+For the convolutional neural network, we apply local contrast normalization; given a $48\times48$ image $X$ from the dataset, we let $$X = \cfrac{256\times (X - X_{min})}{X_{max} - X_{min}},$$ where $X_{max}$ and $X_{min}$ are the maximum and minimum values in $X$'s pixels, respectively. 
 
 \section{Feature Design and Selection}
-When appropriate for the learner, we consider three feature sets; raw pixels, PCA, and Gabor filter-based features. For the open method, we consider contrast-normalized pixels, and add rotation-perturbed examples.
+When appropriate for the learner, we consider three feature sets; standardized raw pixels, PCA, and Gabor filter-based features. For the open method, we consider contrast-normalized raw pixels and the addition of rotation-perturbed examples.
 
 \subsection{Pixels}
 We use the post-standardization pixel information as a baseline feature set.This produces feature vectors of length 2304. 
@@ -93,11 +123,11 @@ We use the implementation of PCA provided by the Scikit-learn library\cite{sciki
 As removing the least useful features made the results of our baseline classifier worse, we keep full dimensionality. However, we expect PCA features to produce better results given that they are linearly uncorrelated.
 
 \subsection{Gabor}
-Gabor filters are linear filters used for edge detection and are thought to be similar to the early stages of visual processing in humans. Indeed, their frequency and orientations correspond roughly to simple cells in the visual cortex of humans and other mammals; these cells can be modelled with Gabor functions.\cite{Jones}\cite{Marvcelja} As these filters are well-suited to image processing, we attempt to translate them into features.
+Gabor filters are linear filters used for edge detection and are thought to be similar to the early stages of visual processing in humans. Their frequency and orientations correspond roughly to simple cells in the visual cortex of humans and other mammals; these cells can be modelled with Gabor functions.\cite{Jones}\cite{Marvcelja} As these filters are well-suited to image processing, we attempt to translate them into features.
 
 Previous research has used the energy of the convolution between a Gabor filters and image (a measure of how strongly the filter responds to that image\cite{Grigorescu}) as a feature by summing its magnitudes in the image.\cite{Bau} This is equivalent to using the Frobenius norm of the convolved image as a feature. 
 
-Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters with 4 equidistant $\theta$ values, $\sigma = \{1, 3\}$, and frequencies $= \{0.05, 0.25\}$. Figure \ref{fig:gabor} illustrates the effects of $\theta$, $\sigma$, and frequency with a sample of our filters. We form the feature vector of an image in the dataset by collecting the Frobenius norms of the image convolved with each filter. 
+Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters with 8 equidistant $\theta$ values, $\sigma = \{1, 3\}$, and frequencies $= \{0.05, 0.25\}$. Figure \ref{fig:gabor} illustrates the effects of $\theta$, $\sigma$, and frequency with a sample of our filters. We form the feature vector of an image in the dataset by collecting the Frobenius norms of the image convolved with each filter. 
 
 \begin{figure}[h]
 	\centering
@@ -107,31 +137,11 @@ Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters 
 \end{figure}
 
 \subsection{Perturbed}
+For the convolutional neural network, 
 
 
-\section{Algorithm Selection}% for each category
-\subsection{Perceptron}
-We implement a multiclass perceptron as a baseline classifier. Given $n$ examples with $m$ features each, and given $k$ classes, the perceptron learns a matrix $W$ of $m \times k$ weights (one for each feature-class combination) by gradient descent on the error $$Err(x) = (y - f(W^Tx)),$$
-where $f$ is the Heaviside step function.
-
-\subsection{Fully-Connected Neural Network}
-
-\subsection{Linear SVM}
-Use Scikit-learn implementation \cite{scikit-learn}
-
-\subsection{Convolutional Neural Network}
-Although fully-connected neural networks tend to perform very well at machine learning tasks, their ability to classify images can be very affected by shifts in position or shape distortions--in other words, they can be bad at identifying invariant patterns. In the early '80s, Fukushima introduced convolution layers to remedy that problem and handle geometrical similarities regardless of position.\cite{Fukushima} In effect, a convolution acts as a filter applied to an image's raw pixels; a convolution layer contains many such filters, whose weights are learned as the neural network is trained. This serves as an implicit, learned feature extraction at the start of the neural network, typically followed by hidden layers.
-
-The use of convolution layers seem particularly appropriate given the difficulty of our dataset, which adds noise-inducing modifications to the MNIST dataset. Indeed, LeCun has shown that a convolutional neural network trained with MNIST images continues to predict digits correctly regardless of rotations and noise.\cite{LeCun}
-
-It should be noted, however, that neural networks with many layers tend to overfit; there may be many complicated relationships between examples and their labels, and enough hidden units to model these relationships in multiple ways. Hinton et al. introduced the concept of dropout. During training, hidden units are randomly omitted with probability $p$, which helps prevent complex co-adaptations on training data. The combination of dropout with L2 normalization on a neural network trained with minibatch SGD gave Hinton et al. better results than without dropout.\cite{Hinton}  
-
-This idea has been successfully applied to a convolutional neural network; using a network with convolution layers followed by hidden layers, Krizhevsky et al. applied dropout to the hidden layer weights, and vastly outperformed other methods on an ImageNet classification competition.\cite{Krizhevsky} 
-
-In light of these findings, we implement our own convolutional neural network. Its architecture consists of a variable number of convolution layers, followed by a variable number of hidden layers and the output layer. We apply dropout to the hidden layers, and train our network using minibatch SGD, with L2 regularization.
-
-\section{Optimization} % if required
-Given the vast amount of time required to train a convolutional neural network, we implement ours to run on a GPU, which allows us to increase the speed of training by approximately factor of 10. We make use of Theano\cite{Theano}, a symbolic Python library that enables compiling computation-heavy functions in C and running them on a GPU.
+\section{Optimization} 
+Given the vast amount of time required to train a convolutional neural network, we implement ours to run on a GPU. This reduces the training time by approximately a factor of 10. We use Theano\cite{Theano}, a symbolic Python library that compiles computation-heavy functions in C and can execute them on a GPU. We use the cuda-convnet implementation of convolutions\cite{Krizhevsky}, which offers a 3-fold speed improvement relative to Theano's convolution function.
 
 \section{Parameter Selection Method}% model order, learning rate, etc
 For each learner, we fix the hyperparameters to compare the performance of appropriate feature sets, and perform a preliminary manual inspection to identify viable hyperparameters, followed up by either the traditional gridsearch, or a random search. In cases where there are many hyperparameters and training is long, random search offers a faster alternative to gridsearch for finding good hyperparameters. It has been shown to obtain results as good as or better than gridsearch\cite{Bergstra}. The details of parameter selection are discussed in this section.
@@ -160,6 +170,7 @@ The neural network can also use pixel, PCA, or Gabor features. As we did for the
 
 
 \subsection{Linear SVM}
+
 
 \subsection{Convolutional Neural Network}
 The only appropriate features for a convolutional neural network are pixel features. In this case, rather than using per-feature standardization, we apply contrast normalization within images.
@@ -210,10 +221,18 @@ Use the best feature set to find best hyperparameters with cross-validation. You
 
 \subsection{Linear SVM}
 
+
 \subsection{Convolutional Neural Network}
+We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. Appendix \ref{sec:convnet-settings} elaborates on the specific hyperparameters used in the trials showed there.
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{convnet_comparison}
+  	\caption{Validation scores of convolutional neural network at different hyperparameter settings}
+  	\label{fig:convnet-compare}
+\end{figure}
 
-SHOW THE FINAL NETWORK ARCHITECTURE Figure \ref{fig:convnet-architect}
+Our best model, whose architecture is shown in Figure \ref{fig:convnet-architect}, obtained a test accuracy of ??? on the Kaggle leaderboard. Figure ??? demonstrates an estimate of the model's confusion matrix using validation results.
 
 (something like this, but the architecture is totally subject to change)
 \begin{figure}[h!]
@@ -275,7 +294,7 @@ SHOW THE FINAL NETWORK ARCHITECTURE Figure \ref{fig:convnet-architect}
 
 
 \section{Discussion}% pros/cons of approach & methodology (and alternatives)
-Why is it better at classifying 0s and 1s? (Check number of examples in classes--could be Benford's law?
+Why is it better at classifying 0s and 1s? Interestingly, it is not due to different proportions of examples in those classes; the data is evenly distributed.
 
 Using Gabor filters as a kernel rather than feature \cite{Sabri}
 
@@ -308,6 +327,9 @@ Others: \cite{Rowley}, \cite{Simard}
   	\caption{Cross-validation over \# of iterations with perceptron, keeping $\alpha$ optimal}
   	\label{fig:perc-iterations}
 \end{figure}
+
+\section{Hyperparameters for convolutional neural network}
+\label{sec:convnet-settings}
 
 
 \balancecolumns
