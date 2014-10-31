@@ -76,3 +76,21 @@ def sigmoid(x, firstLayer = True):
     else:
         out = sigmoid(x)
         return out * (1.0 - out)
+
+"----- Random Hyper Parameters -----"
+def RandomHyperParams(nFeatures):
+
+    alphas = [0.1, 0.01, 0.001, 0.005, 0.0001, 0.0005, 0.00001, 0.00005, 0.000001, 0.000005]
+    betas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    _nodes = math.floor(math.log2(nFeatures))
+    nodesPerLayer = [_nodes+10, _nodes+20, _nodes+30, _nodes+40, _nodes+50, _nodes+60, _nodes+70, _nodes+80, _nodes+90, _nodes+100]
+    iterations = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
+    layers = [1, 2]
+
+    alpha = random.choice(alphas)
+    beta = random.choice(betas)
+    nodes = random.choice(nodesPerLayer)
+    iters = random.choice(iterations)
+    layers = random.choice(layers)
+
+    return alpha, beta, nodes, iters, layers
