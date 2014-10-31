@@ -133,7 +133,7 @@ class ConvLayer(object):
 		)
 
 		# the bias is a 1D tensor -- one bias per output feature map
-		b_values = np.zeros((filter_shape[0],), dtype=theano.config.floatX)
+		b_values = np.ones((filter_shape[0],), dtype=theano.config.floatX)
 		self.b = theano.shared(value=b_values, borrow=True)
 
 		# convolve input feature maps with filters
