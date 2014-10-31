@@ -62,15 +62,16 @@ for data in CrossValidation(examples, categories, k=10):
 
 	print 'Building convnet...'
 	n_epochs = 400
-	batch_size = 500
+	batch_size = 512
 	learning_rate = 0.1
 	net = ConvNet(rng = np.random.RandomState(1234),
 		# next image shape is (previous_image_shape - filter_size + 1) / poolsize
 		# after  (20,1,7,7) images are (48-7+1 = 42) --> 21 x 21, then (21-6+1 = 16) --> 8x8 
 		# after (20, 1, 5, 5) images are (48-5+1 = 44) --> 22 x 22, then (22-5+1 = 18) --> 9x9, then... 
-		conv_filter_shapes = [(20, 1, 7, 7), (50, 20, 6,6),[70, 50, 4, 4]], #(22, 22) output, shape ()
-		image_shapes = [(batch_size, 1,48,48),(batch_size, 20, 21, 21), (batch_size, 50, 8, 8)], # (9, 9) output, shape (20,50,22,22)
-		poolsizes=[(2,2),(2,2), None],
+		# (48-9+1=40) => 20x20, then (20-5+1 = 16)=> 8, then (8-5+1=4)=> 2
+		conv_filter_shapes = [(32, 1, 9, 9), (64, 32, 5, 5),[80, 64, 4, 4]], #(22, 22) output, shape ()
+		image_shapes = [(batch_size, 1,48,48),(batch_size, 32, 20, 20), (batch_size, 64, 8, 8)], # (9, 9) output, shape (20,50,22,22)
+		poolsizes=[(2,2),(2,2), (2,2)],
 		hidden_layer_sizes=[200],
 		n_outputs=10,
 		learning_rate=learning_rate,

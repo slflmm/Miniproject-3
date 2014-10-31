@@ -6,6 +6,10 @@ import theano.tensor as T
 from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
+from theano.sandbox.cuda.basic_ops import gpu_contiguous
+from pylearn2.sandbox.cuda_convnet.filter_acts import FilterActs
+from pylearn2.sandbox.cuda_convnet.pool import MaxPool
+
 from theano_utils import * 
 
 # ---------------------------------------------------------------------
@@ -133,28 +137,38 @@ class ConvLayer(object):
 		self.b = theano.shared(value=b_values, borrow=True)
 
 		# convolve input feature maps with filters
-		conv_out = conv.conv2d(
-		    input=input,
-		    filters=self.W,
-		    filter_shape=filter_shape,
-		    image_shape=image_shape
-		)
+		# conv_out = conv.conv2d(
+		#     input=input,
+		#     filters=self.W,
+		#     filter_shape=filter_shape,
+		#     image_shape=image_shape
+		# )
+		input_shuffled = input.dimshuffle(1, 2, 3, 0) # bc01 to c01b
+		filters_shuffled = self.W.dimshuffle(1, 2, 3, 0) # bc01 to c01b
+		conv_op = FilterActs(stride=1, partial_sum=1)
+		contiguous_input = gpu_contiguous(input_shuffled)
+		contiguous_filters = gpu_contiguous(filters_shuffled)
+		conv_out_shuffled = conv_op(contiguous_input, contiguous_filters)
 
 		# downsample each feature map individually, using maxpooling
 		if poolsize is not None:
-			pooled_out = downsample.max_pool_2d(
-			    input=conv_out,
-			    ds=poolsize,
-			    ignore_border=True
-			)
+			# pooled_out = downsample.max_pool_2d(
+			#     input=conv_out,
+			#     ds=poolsize,
+			#     ignore_border=True
+			# )
+			pool_op = MaxPool(ds=poolsize[0], stride=poolsize[0])
+			pooled_out_shuffled = pool_op(conv_out_shuffled)
+			pooled_out = pooled_out_shuffled.dimshuffle(3, 0, 1, 2) # c01b to bc01
 		else:
-			pooled_out = conv_out
+			pooled_out = conv_out.dimshuffle(3,0,1,2) #c01b to bc01
 
 		# add the bias term. Since the bias is a vector (1D array), we first
 		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
 		# thus be broadcasted across mini-batches and feature map
 		# width & height
-		self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		# self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		self.output = rectified_linear(pooled_out + self.b.dimshuffle('x',0,'x','x'))
 
 		# store parameters of this layer
 		self.params = [self.W, self.b]
