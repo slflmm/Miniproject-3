@@ -63,7 +63,7 @@ for data in CrossValidation(examples, categories, k=10):
 	print 'Building convnet...'
 	n_epochs = 400
 	batch_size = 512
-	learning_rate = 0.2
+	learning_rate = 0.1
 	net = ConvNet(rng = np.random.RandomState(1234),
 		# we're getting 720 instead of 320, why?  
 		# next image shape is (previous_image_shape - filter_size + 1) / poolsize

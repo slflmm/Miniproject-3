@@ -217,6 +217,10 @@ def convnet_visualize():
 	convnet9 = map(lambda x: 1 - x, convnet9)
 	convnet9 += [None]*(len(epochs)-len(convnet9))
 
+	convnet10 = [0.370877,0.221137,0.190972,0.187500,0.153212,0.144531,0.131510,0.141276,0.125217,0.126085,0.114583,0.119792,0.119792,0.130642,0.112413,0.122830,0.127387,0.121962]
+	convnet10 = map(lambda x: 1 - x, convnet10)
+	convnet10 += [None]*(len(epochs)-len(convnet10))
+
 	c2, = ax.plot(epochs, convnet2, marker='D', color='green', label='Basic')
 	c3, = ax.plot(epochs, convnet3, marker='x', color='red', label='Perturbed')
 	c4, = ax.plot(epochs, convnet4, marker='o', color='blue', label='Larger filters')
@@ -224,7 +228,7 @@ def convnet_visualize():
 	c6, = ax.plot(epochs, convnet6, marker='s', color='cyan', label='Larger alpha')
 	c7, = ax.plot(epochs, convnet7, marker='*', color='yellow', label='Smaller minibatch')
 	c8, = ax.plot(epochs, convnet8, marker='D', color='black', label='4 conv layers')
-	c9, = ax.plot(epochs, convnet9, marker='x', color='red', label='Momentum')
+	c9, = ax.plot(epochs, convnet10, marker='x', color='red', label='Momentum')
 
 	handles, labels = ax.get_legend_handles_labels()
 	ax.legend(handles, labels, loc=0)

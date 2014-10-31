@@ -167,8 +167,8 @@ class ConvLayer(object):
 		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
 		# thus be broadcasted across mini-batches and feature map
 		# width & height
-		self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
-		# self.output = rectified_linear(pooled_out + self.b.dimshuffle('x',0,'x','x'))
+		# self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		self.output = rectified_linear(pooled_out + self.b.dimshuffle('x',0,'x','x'))
 
 		# store parameters of this layer
 		self.params = [self.W, self.b]
@@ -307,8 +307,8 @@ class ConvNet(object):
 		self.grads = T.grad(self.dropout_nll(y), self.params)
 
 		# SGD weights update
-		# updates = [(param_i, param_i - learning_rate * grad_i) for param_i, grad_i in zip(self.params, self.grads)]
-		updates = gradient_updates_momentum(cost=self.dropout_nll(y), params=self.params, learning_rate=learning_rate, momentum=0.9)
+		updates = [(param_i, param_i - learning_rate * grad_i) for param_i, grad_i in zip(self.params, self.grads)]
+		# updates = gradient_updates_momentum(cost=self.dropout_nll(y), params=self.params, learning_rate=learning_rate, momentum=0.9)
 
 		# Compile training function that returns training cost, and updates model parameters. 
 		train_output, train_errors = self.dropout_nll(y), self.dropout_errors(y)
