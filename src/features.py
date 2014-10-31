@@ -100,14 +100,6 @@ def add_perturbation(x, y):
 	dst = cv2.warpAffine(x.reshape(48,48),M,(cols,rows)).flatten()
 	return [dst, y]
 
-print "Loading train output..."
-train_output = loadnp("/home/ml/slafla2/Miniproject-3/src/train_outputs.npy")
-
-print "Loading train input..."
-train_input = loadnp("/home/ml/slafla2/Miniproject-3/src/train_inputs.npy")
-
-
-
 def save_train_features():
 	# ------------------------
 	# Loading raw training set
