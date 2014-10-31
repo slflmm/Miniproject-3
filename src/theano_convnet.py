@@ -145,7 +145,7 @@ class ConvLayer(object):
 		# )
 		input_shuffled = input.dimshuffle(1, 2, 3, 0) # bc01 to c01b
 		filters_shuffled = self.W.dimshuffle(1, 2, 3, 0) # bc01 to c01b
-		conv_op = FilterActs(stride=1, partial_sum=1)
+		conv_op = FilterActs(stride=1, partial_sum=1, pad=filter_shape[2] - 1)
 		contiguous_input = gpu_contiguous(input_shuffled)
 		contiguous_filters = gpu_contiguous(filters_shuffled)
 		conv_out_shuffled = conv_op(contiguous_input, contiguous_filters)
