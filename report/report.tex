@@ -137,7 +137,7 @@ Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters 
 \end{figure}
 
 \subsection{Perturbed}
-For the convolutional neural network, 
+For the convolutional neural network, we use contrast-normalized pixels, but also compare an extended dataset to the provided examples. We double the size of the training set by introducing a randomly rotated version of each example.
 
 
 \section{Optimization} 
@@ -170,16 +170,21 @@ The neural network can also use pixel, PCA, or Gabor features. As we did for the
 
 
 \subsection{Linear SVM}
+As we do for the perceptron and fully-connected neural network, 
 
 
 \subsection{Convolutional Neural Network}
-The only appropriate features for a convolutional neural network are pixel features. In this case, rather than using per-feature standardization, we apply contrast normalization within images.
+The only appropriate features for a convolutional neural network are pixel features. We use contrast-normalization within images, and also consider the perturbation-extended dataset. 
 
-We must optimize many hyperparameters; in addition to those for the fully-connected neural network, we must also consider the dropout rate, as well as the number of convolution layers, the number of filters per layer, and the filter sizes. Due to time constraints, we can only sample a small portion of this very large parameter space. Hence, we select hyperparameters with manual search.
+We must optimize many hyperparameters; in addition to those for the fully-connected neural network, we must also consider the dropout rate, as well as the number of convolution layers, the number of filters per layer, and the filter sizes. We must also consider activation functions, learning rate decay, and momentum rate. Due to time constraints, we can only sample a small portion of this very large parameter space. Hence, we select hyperparameters with manual search and train models until they reach a plateau to compare their performance.
 
-Luckily, we can use heuristics to reduce our search space when it comes to the size of hidden layers and the size and number of filters per convolution layer. To start with, tips and tricks offered by Theano's deep learning tutorials note that, to preserve information across convolution layers, the value of (number of feature maps $\times$ number of incoming pixels) is usually chosen to be constant. Moreover, it is suggested that $5 \times 5$ filters in the first convolution layer work well with the MNIST dataset, while filter sizes of $12\times12$ or $15\times15$ work well with images with hundreds of pixels in each dimension.\cite{Theano-tut} Noting that MNIST images are $28\times28$ pixels, whereas our dataset's images are $48\times48$ pixels, we consider filter sizes ranging from $5\times 5$ to $8\times 8$. We begin with 3 convolution layers, with 20 to 50 filters per layer; we adjust the number of filters of later layers as a function of the values for the first layer.
+We start from the parameters used in Theano's convolutional network tutorial, where they train a network on the MNIST dataset. That is, we start with two convolutional layers with 20 and 50 filters respectively, each with filter sizes $5\times 5$. We use a learning rate $\alpha = 0.1$, without momentum, learning rate decay, or the extended dataset. From there, we apply modifications to each parameter and attempt to find a good model.
 
-We use one hidden layer; as discussed in class, with binary inputs, the number of hidden units in a hidden layer should be around $\log(n\_inputs)$, where $n\_inputs$ is the number of connections going into the layer. Since our inputs are not binary, we start with $10\times \log(n\_inputs)$ hidden units.
+Luckily, we can use heuristics to reduce search when it comes to the size of hidden layers and the size and number of filters per convolution layer. We keep in mind tips and tricks offered by Theano's deep learning tutorials\cite{Theano-tut}:
+\begin{itemize}
+\item When filter size increases, number of filters decrease; this is to preserve information across convolution layers. 
+\item $5 \times 5$ filters in the first convolution layer work well with the MNIST dataset of size $28 \times 28$ pixels, while filter sizes of $12\times12$ or $15\times15$ work well with images with hundreds of pixels in each dimension.
+\end{itemize}
 
 \section{Testing and Validation}%detailed analysis of results
 

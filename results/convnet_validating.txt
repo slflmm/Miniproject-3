@@ -11,6 +11,17 @@
    9    |		3		|	   1		|   (7,6,4)np |     (32, 64, 80)  |    200		 |    512  	  |  0.2  |   0.50  |   0.1    |    None   | 
   10    |		3		|	   1		|   (7,6,4)np |     (32, 64, 80)  |    200		 |    512  	  |  0.2  |   0.50  |   0.9    |    None   | 
 
+0.005 decay no momentum
+
+try 4 layers no downsampling
+
+try again perturbations
+
+rectifier units at convolutions
+  11    |		3		|	   1		|   (7,6,4)np |     (32, 64, 80)  |    200		 |    512  	  |  0.1  |   0.50  |   None   |    None   | 
+
+
+
 
 	9   |		3		|	   2		| (7,6,4,3)np |     (32, 64, 80)  |   [100,100]	 |    512  	  |  0.25 |   0.50  |   None   |    None   |  
 
@@ -18,4 +29,5 @@
 	7   |		2		|	   1		|	  5		  | 	(20, 50)ds	  |    200		 | 0.1d	 |   0.50  |   None   |    None   |     	     
 
 
-	try also diminishing learning rate over time   
+	try also diminishing learning rate over time  
+	try also rectifier units instead of tanh at convolutions 
