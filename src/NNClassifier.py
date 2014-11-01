@@ -18,11 +18,11 @@ class NeuralNetworkClassifier:
 
         self._inputLayer = []
         self._outputLayer = []
-        #self._prevDeltaWeight = []
+        self._prevDeltaWeight = []
 
         for (x, y) in zip(layerSize[:-1], layerSize[1:]):
            self.weights.append(np.random.normal(scale=0.1, size = (y, x+1))) #initialize all weights to small random number
-           #self._prevDeltaWeight.append(np.zeros((y, x+1)))
+           self._prevDeltaWeight.append(np.zeros((y, x+1)))
 
         lFuncs = []
         for i in range(self.layerCount):
@@ -53,7 +53,7 @@ class NeuralNetworkClassifier:
         return self._outputLayer[-1].T
 
     "----- TrainingEpoch: back propagation and gradient descent -----"
-    def TrainingEpoch(self, input, target, lenMiniBatch, alpha = 0.1, lmbda = 0.0):#beta = 0.5):
+    def TrainingEpoch(self, input, target, lenMiniBatch, alpha = 0.1, lmbda = 0.0, beta = 0.5):
         delta = []
         nSamples = input.shape[0]
 
@@ -81,11 +81,13 @@ class NeuralNetworkClassifier:
 
             outputXdelta = layerOutput[None, :, :].transpose(2, 0, 1) * delta[delta_index][None, :, :].transpose(2, 1, 0)
             curDeltaWeight = np.sum(outputXdelta, axis = 0)
-            deltaWeight = (1-alpha*(lmbda/nSamples))*self.weights[index] - (alpha/lenMiniBatch) * curDeltaWeight #+ (beta/lenMiniBatch) * self._prevDeltaWeight[index]
 
-            self.weights[index] = deltaWeight
+            L1 = (1-alpha*(lmbda/nSamples))*self.weights[index]
+            deltaWeight = (alpha/lenMiniBatch) * curDeltaWeight + (beta/lenMiniBatch) * self._prevDeltaWeight[index]
 
-            #._prevDeltaWeight[index] = deltaWeight
+            self.weights[index] = L1 - deltaWeight
+
+            self._prevDeltaWeight[index] = deltaWeight
 
         return accuracy
 

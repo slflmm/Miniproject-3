@@ -1,0 +1,74 @@
+lmbda = 5, alpha = 0.0005, beta = 0.9, nodes = 101, nIter = 90, nLayers = 1
+RUN 1...
+nnc(2304, 101, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.1008
+fold 1
+--trainingAccuracy 1.0
+--validationAccuracy 0.096
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.0997
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.0925
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.0981
+Training Accuracy 0.2 : Validation Accuracy 0.09742
+--------------------------------------------------------------
+lmbda = 5, alpha = 1e-05, beta = 0.5, nodes = 51, nIter = 110, nLayers = 2
+RUN 2...
+nnc(2304, 51, 25, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.1032
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.1067
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.101
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.1026
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.0997
+Training Accuracy 0.0 : Validation Accuracy 0.10264
+--------------------------------------------------------------
+lmbda = 5, alpha = 0.1, beta = 0.4, nodes = 101, nIter = 100, nLayers = 2
+RUN 3...
+nnc(2304, 101, 50, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.107
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.0894
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.0899
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.094
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.0988
+Training Accuracy 0.0 : Validation Accuracy 0.09581999999999999
+--------------------------------------------------------------
+
+
+lmbda = 5, alpha = 0.001, beta = 0.9, nodes = 101, nIter = 150, nLayers = 1
+lmbda = 5, alpha = 1e-05, beta = 0.1, nodes = 31, nIter = 170, nLayers = 2
+lmbda = 5, alpha = 0.0005, beta = 0.6, nodes = 61, nIter = 100, nLayers = 2
+lmbda = 5, alpha = 0.1, beta = 0.6, nodes = 51, nIter = 70, nLayers = 1
+lmbda = 5, alpha = 5e-06, beta = 0.3, nodes = 41, nIter = 90, nLayers = 1
+lmbda = 5, alpha = 5e-06, beta = 0.7, nodes = 91, nIter = 150, nLayers = 1
+lmbda = 5, alpha = 1e-06, beta = 0.2, nodes = 61, nIter = 150, nLayers = 2
+lmbda = 5, alpha = 1e-05, beta = 0.8, nodes = 21, nIter = 180, nLayers = 2
+lmbda = 5, alpha = 0.1, beta = 0.2, nodes = 101, nIter = 140, nLayers = 2
+lmbda = 5, alpha = 1e-05, beta = 0.5, nodes = 81, nIter = 50, nLayers = 1
+lmbda = 5, alpha = 1e-05, beta = 0.2, nodes = 21, nIter = 200, nLayers = 1
+lmbda = 5, alpha = 5e-06, beta = 0.9, nodes = 31, nIter = 120, nLayers = 2

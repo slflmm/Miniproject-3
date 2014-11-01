@@ -7,21 +7,21 @@ trainingInput = np.load('standardized_train_inputs.npy')
 trainingOutput = np.load('train_outputs.npy')
 
 nFeatures = trainingInput.shape[1]
+#lmbda = 5
 
 #trainingInput = trainingInput[:100,:]
 #trainingOutput = trainingOutput[:100]
 #for i in range(15):
 #    alpha, beta, nodes, nIter, nLayers = utils.RandomHyperParams(nFeatures)
-#    print("alpha = {0}, beta = {1}, nodes = {2}, nIter = {3}, nLayers = {4}".format(alpha, beta, nodes, nIter, nLayers))
-print("RUN 5...")
+#    print("lmbda = {0}, alpha = {1}, beta = {2}, nodes = {3}, nIter = {4}, nLayers = {5}".format(lmbda, alpha, beta, nodes, nIter, nLayers))
+print("RUN 3...")
 
 lmbda = 5
 alpha = 0.1
-beta = 0.3
-nodes = 31
-nIter = 160
+beta = 0.4
+nodes = 101
+nIter = 100
 nLayers = 2
-print("lmbda = {0}, alpha = {1}, nodes = {2}, nIter = {3}, nLayers = {4}".format(lmbda, alpha, nodes, nIter, nLayers))
 
 if nLayers == 1:
     nnc = nnClassifier.NeuralNetworkClassifier((nFeatures, nodes, 10))
@@ -48,7 +48,7 @@ for kFold in range(5):
     trainingAccuracy = 0
     validationAccuracy = 0
 
-    xy = np.insert(xTrain, nFeatures, yTrain, axis = 1)
+    xy = np.insert(xTrain, nFeatures, yTrain, axis = 1) #merge x and y
 
     for nIt in range(nIter):
         random.shuffle(xy)
@@ -59,7 +59,7 @@ for kFold in range(5):
             lenMiniBatch = len(miniBatch)
             xMiniBatch = miniBatch[:, :-1]
             yMiniBatch = miniBatch[:, -1]
-            miniBatchAcc = nnc.TrainingEpoch(xMiniBatch, yMiniBatch, lenMiniBatch, alpha, lmbda)#, beta)
+            miniBatchAcc = nnc.TrainingEpoch(xMiniBatch, yMiniBatch, lenMiniBatch, alpha, lmbda, beta)
 
         if nIt == nIter - 1:
             trainingAccuracy = miniBatchAcc
