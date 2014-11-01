@@ -26,20 +26,8 @@ def get_gabor_features(image, gaborKernels):
 		convimg = ndimage.convolve(image.reshape(48,48), k, mode='wrap')
 		features.append(convimg.mean())
 		features.append(convimg.var())
-		local_energy = []
-		amplitude_info = []
-		for el in convimg:
-			energy = 0
-			amp = 0
-			for it in el:
-				energy = energy + it**2
-				amp = amp + abs(it)
-			amp = amp/float(len(el))
-			local_energy.append(energy)
-			amplitude_info.append(amp)
-		features.extend(local_energy)
-		features.extend(amplitude_info)
-	#print features
+		features.append(linalg.norm(convimg))
+		features.append(linalg.norm(convimg, 1))
 	return features
 
 '''
@@ -50,7 +38,7 @@ def get_gabor_features(image, gaborKernels):
 	freqMin: float, min frequency to start off with (eg. 0.05)
 	freqMax: float, max frequency to end with (eg. 0.25)
 '''
-def getGaborKernels(n_theta = 8, sigmas=[1,3], frequencies=[0.05, 0.25]):
+def getGaborKernels(n_theta = 4, sigmas=[1,3], frequencies=[0.05, 0.25]):
 	gaborKernels = []
 	for theta in range(n_theta):
 		theta = theta / float(n_theta) * np.pi
@@ -113,10 +101,10 @@ def save_train_features():
 	# Loading raw training set
 	# ------------------------
 	print "Loading train output..."
-	train_output = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/data/train_outputs.npy")
+	train_output = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_outputs.npy")
 
 	print "Loading train input..."
-	train_input = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/data/train_inputs.npy")
+	train_input = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs.npy")
 
 	# ----------------------
 	# Standardizing features (and saving)
@@ -130,10 +118,10 @@ def save_train_features():
 	# -----------------------
 	# PCA features (and saving)
 	# -----------------------
-	#print "Getting PCA features..."
-	#pca = decomposition.PCA()
-	#examples = pca.fit_transform(examples)
-	#np.save('train_inputs_pca', examples)
+	print "Getting PCA features..."
+	pca = decomposition.PCA()
+	examples = pca.fit_transform(examples)
+	np.save('train_inputs_pca', examples)
 
 	# --------------
 	# Gabor features
@@ -145,7 +133,7 @@ def save_train_features():
 	for ex in examples:
 		f = get_gabor_features(ex, kernels)
 		data.append(f)
-		print len(data)
+		print str(len(data))
 	print "Normalizing..."
 	#scaler = preprocessing.StandardScaler().fit(data)
 	#examples = scaler.transform(data)
@@ -172,27 +160,5 @@ def save_test_features():
 	np.save('test_inputs_pca', examples)
 
 
-# save_train_features()
-# # ------------------------
-# # Getting test predictions using SVM and gabor features 
-# # ------------------------
-# trainInput = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs_gabor.npy")
-# trainOutput = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_outputs.npy")
 
-# print "lengths features: " + str(len(trainInput[0]))
-# print "lengths output: " + str(trainOutput[0])
-
-# (validSet, trainSet, validSetY, trainSetY) = splitValidTest(trainInput, trainOutput, 0.1)
-# print "done splitting... "
-
-# #(validSetY, trainSetY) = fixOutputs(validSetY, trainSetY)
-# #print validSetY
-# #print trainSetY
-
-# print "Testing using pixel features... training..."
-# clf = SVC(kernel='linear')
-# clf.fit(trainSet, trainSetY)
-
-# print "checking against Valid Set..."
-# acc = clf.score(validSet, validSetY)
-# print acc
+save_train_features()
