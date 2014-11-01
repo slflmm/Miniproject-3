@@ -54,7 +54,7 @@ print "Starting cross-validation..."
 # 5000
 train_data, train_result = examples[5000:,:], categories[5000:]
 valid_data, valid_result = examples[:5000,:], categories[:5000]
-pad_test = np.zeros(20480, test_examples.shape[1])
+pad_test = np.zeros((20480, test_examples.shape[1]))
 pad_test[:20000] = test_examples
 	# print "Generating new examples..."
 	# new_data = map(lambda x,y: add_perturbation(x,y), train_data, train_result)
