@@ -206,7 +206,7 @@ class ConvNet(object):
 		self.layers = []
 		self.dropout_layers = []
 
-		self.learning_rate = theano.shared(np.asarray(initial_learning_rate,
+		self.learning_rate = theano.shared(np.asarray(learning_rate,
         dtype=theano.config.floatX))
 
 		# don't do dropout on input going into convolution...
@@ -323,8 +323,8 @@ class ConvNet(object):
 				y: self.train_set_y[index * batch_size:(index + 1) * batch_size]
 			})
 
-		self.decay_learning_rate = theano.function(inputs=[], outputs=learning_rate,
-            updates={learning_rate: learning_rate * 0.995})
+		self.decay_learning_rate = theano.function(inputs=[], outputs=self.learning_rate,
+            updates={self.learning_rate: self.learning_rate * 0.995})
 
 
 
