@@ -15,7 +15,7 @@ def rectified_linear(x):
 	'''
 	Rectified linear unit activation. Seems to work very well in deep nets.
 	'''
-	return T.switch(x >= 0, x, 0)#T.maximum(0.0, x)
+	return x * (x > 0)#T.switch(x >= 0, x, 0)#T.maximum(0.0, x)
 
 def sigmoid(x):
 	'''
