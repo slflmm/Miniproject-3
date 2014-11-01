@@ -21,7 +21,7 @@ test_examples = loadnp("/home/ml/slafla2/Miniproject-3/src/test_inputs.npy")
 def contrast_normalize(x):
 	min_x = min(x)
 	max_x = max(x)
-	res = (x - min_x)*255/(max_x - min_x)
+	res = (x - min_x)*1.0/(max_x - min_x)
 	return np.array(res)
 
 print "Doing contrast normalization..."
