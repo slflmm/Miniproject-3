@@ -87,7 +87,7 @@ class Trainer(object):
 				minibatch_avg_cost, minibatch_error = self.classifier.train_model(minibatch_index)
 				if epoch == n_epochs:
 					training_error += minibatch_error / n_train_batches
-				print 'Training error at epoch %d is %f' %(epoch, minibatch_error/batch_size)
+				# print 'Training error at epoch %d is %f' %(epoch, minibatch_avg_cost)
 
 			# print 'Completed epoch %d. Code has run for %.2fm.' %(epoch, (time.clock() - start_time)/60)
 
