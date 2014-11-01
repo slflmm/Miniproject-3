@@ -328,11 +328,11 @@ class ConvNet(object):
 			})
 
 		if test_set is not None:
-		self.predict_model = theano.function(inputs=[index],
-			outputs=self.layers[-1].y_pred,
-			givens={
-				x: self.test_set[index * batch_size:(index + 1) * batch_size]
-			})
+			self.predict_model = theano.function(inputs=[index],
+				outputs=self.layers[-1].y_pred,
+				givens={
+					x: self.test_set[index * batch_size:(index + 1) * batch_size]
+				})
 
 		self.decay_learning_rate = theano.function(inputs=[], outputs=self.learning_rate,
             updates={self.learning_rate: self.learning_rate * 0.995})
