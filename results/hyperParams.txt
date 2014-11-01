@@ -1,0 +1,139 @@
+Mini Batch Size = 500
+
+RUN 1...
+lmbda = 5, alpha = 0.005, nodes = 31, nIter = 110, nLayers = 2
+nnc(2304, 31, 15, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.0992
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.101
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.11
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.1153
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.1146
+Training Accuracy 0.0 : Validation Accuracy 0.10802
+---------------------------------------------------------------
+
+RUN 2...
+lmbda = 5, alpha = 5e-05, nodes = 71, nIter = 100, nLayers = 2
+nnc(2304, 71, 35, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.095
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.0985
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.0994
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.096
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.0965
+Training Accuracy 0.0 : Validation Accuracy 0.09708000000000001
+---------------------------------------------------------------
+
+RUN 3...
+lmbda = 5, alpha = 0.01, nodes = 101, nIter = 60, nLayers = 2
+nnc(2304, 101, 50, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.0993
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.1023
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.099
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.1014
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.1018
+Training Accuracy 0.0 : Validation Accuracy 0.10076
+---------------------------------------------------------------
+
+RUN 4...
+lmbda = 5, alpha = 1e-05, nodes = 91, nIter = 190, nLayers = 1
+nnc(2304, 91, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.0929
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.094
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.0953
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.0944
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.0936
+Training Accuracy 0.0 : Validation Accuracy 0.09404
+---------------------------------------------------------------
+
+RUN 5...
+lmbda = 5, alpha = 0.1, nodes = 31, nIter = 160, nLayers = 2
+nnc(2304, 31, 15, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.1003
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.099
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.0949
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.098
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.0958
+Training Accuracy 0.0 : Validation Accuracy 0.09759999999999999
+
+
+==================================================================================================================
+alpha = 0.0001, beta = 0.5, nodes = 21, nIter = 140, nLayers = 1
+alpha = 1e-06, beta = 0.9, nodes = 31, nIter = 80, nLayers = 1
+alpha = 0.01, beta = 0.3, nodes = 21, nIter = 110, nLayers = 1
+alpha = 0.005, beta = 0.9, nodes = 61, nIter = 170, nLayers = 2
+alpha = 0.1, beta = 0.4, nodes = 21, nIter = 140, nLayers = 1
+alpha = 0.005, beta = 0.1, nodes = 71, nIter = 160, nLayers = 2
+alpha = 0.005, beta = 0.1, nodes = 101, nIter = 190, nLayers = 2
+alpha = 0.001, beta = 0.3, nodes = 21, nIter = 140, nLayers = 1
+alpha = 0.01, beta = 0.9, nodes = 81, nIter = 190, nLayers = 1
+alpha = 1e-05, beta = 0.7, nodes = 81, nIter = 130, nLayers = 2
+
+=============================================
+RUN 4...
+lmbda = 0, alpha = 1e-05, nodes = 91, nIter = 190, nLayers = 1
+nnc(2304, 91, 10)
+fold 0
+--trainingAccuracy 0.0
+--validationAccuracy 0.0968
+fold 1
+--trainingAccuracy 0.0
+--validationAccuracy 0.0983
+fold 2
+--trainingAccuracy 0.0
+--validationAccuracy 0.0962
+fold 3
+--trainingAccuracy 0.0
+--validationAccuracy 0.096
+fold 4
+--trainingAccuracy 0.0
+--validationAccuracy 0.095
+Training Accuracy 0.0 : Validation Accuracy 0.09645999999999999
