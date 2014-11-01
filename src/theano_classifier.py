@@ -87,12 +87,15 @@ class Trainer(object):
 				minibatch_avg_cost, minibatch_error = self.classifier.train_model(minibatch_index)
 				if epoch == n_epochs:
 					training_error += minibatch_error / n_train_batches
+				print 'Training error at epoch %d is %f' %(epoch, minibatch_error/batch_size)
 
 			# print 'Completed epoch %d. Code has run for %.2fm.' %(epoch, (time.clock() - start_time)/60)
 
 			if self.classifier.valid_set_x is not None and epoch%10==0:
 				validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
 				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors)/batch_size)
+
+			self.classifier.decay_learning_rate()
 
 		# get validation error
 		if self.classifier.valid_set_x is not None:
