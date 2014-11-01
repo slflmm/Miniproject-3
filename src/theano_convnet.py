@@ -167,8 +167,8 @@ class ConvLayer(object):
 		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
 		# thus be broadcasted across mini-batches and feature map
 		# width & height
-		# self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
-		self.output = rectified_linear(pooled_out + self.b.dimshuffle('x',0,'x','x'))
+		self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		# self.output = rectified_linear(pooled_out + self.b.dimshuffle('x',0,'x','x'))
 		# self.output = T.log(1 + T.exp(pooled_out + self.b.dimshuffle('x',0,'x','x')))
 
 		# store parameters of this layer
@@ -196,7 +196,8 @@ class ConvNet(object):
 		train_set_x,
 		train_set_y,
 		valid_set_x=None,
-		valid_set_y=None):
+		valid_set_y=None,
+		test_set=None):
 
 
 		
@@ -295,7 +296,10 @@ class ConvNet(object):
 		# put the data into shared variable so that minibatch access occurs on the gpu
 		# ... hopefully it all fits on the gpu or we've got slow-down
 		self.train_set_x, self.train_set_y, self.valid_set_x, self.valid_set_y = shared_dataset(train_set_x, train_set_y, valid_set_x, valid_set_y)
-
+		if test_set is not None:
+			self.test_set = theano.shared(
+				np.asarray(test_set,dtype=theano.config.floatX),
+				borrow=True)
 
 		self.validate_model=None
 		# compile validation function if you have a validation set
@@ -321,6 +325,13 @@ class ConvNet(object):
 			givens={
 				x: self.train_set_x[index * batch_size:(index + 1) * batch_size],
 				y: self.train_set_y[index * batch_size:(index + 1) * batch_size]
+			})
+
+		if test_set is not None:
+		self.predict_model = theano.function(inputs=[index],
+			outputs=self.layers[-1].y_pred,
+			givens={
+				x: self.test_set[index * batch_size:(index + 1) * batch_size]
 			})
 
 		self.decay_learning_rate = theano.function(inputs=[], outputs=self.learning_rate,

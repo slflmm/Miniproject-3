@@ -40,7 +40,7 @@ class Trainer(object):
 
 		n_train_batches = self.classifier.train_set_x.get_value(borrow=True).shape[0] / batch_size
 		n_valid_batches = self.classifier.valid_set_x.get_value(borrow=True).shape[0] / batch_size
-
+		n_test_batches = self.classifier.test_set.get_value(borrow=True).shape[0]/batch_size
 		# x = T.matrix('x')
 		# y = T.ivector('y')
 		# index = T.lscalar()
@@ -76,6 +76,10 @@ class Trainer(object):
 		validation_error = None
 		epoch = 0
 
+		best_val_error = 1
+		best_predict = []
+		best_val_predict = []
+
 		start_time = time.clock()
 
 		while (epoch < n_epochs):
@@ -93,7 +97,12 @@ class Trainer(object):
 
 			if self.classifier.valid_set_x is not None and epoch%10==0:
 				validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
+				val_error =  np.mean(validation_errors)/batch_size
 				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors)/batch_size)
+				if val_error < best_val_error:
+					best_val_error = val_error
+					best_val_predict = [self.classifier.predict_model(i) for i in xrange(n_valid_batches)]
+					best_predict = [self.classifier.predict_model(i) for i in xrange(n_test_batches)]
 
 			self.classifier.decay_learning_rate()
 
@@ -106,22 +115,23 @@ class Trainer(object):
 
 		print 'Finished training!\n The code ran for %.2fm.' % ((end_time - start_time) / 60.)
 
-		return training_error, validation_error
+		return best_val_error, best_val_predict, best_predict
 
 		
-	def predict(self, test_set):
-		'''
-		Should return array of predictions for test_set.
-		'''
-		# compile function to return prediction
-		predict_model = theano.function(inputs=[index],
-			outputs=self.classifier.output_layer.y_pred,
-			givens={
-				x: test_set
-			})
+	# def predict(self, test_set):
+	# 	'''
+	# 	Should return array of predictions for test_set.
+	# 	'''
+	# 	# pad for batch size; 20,000/512 = 39.06 so we need 40*512
+	# 	pad = np.zeros((20480,test_set.shape[1]))
+	# 	pad[:20000] = test_set
 
-		# actually run the prediction and return it
-		return predict_model(test_set)
+	# 	predictions = [self.classifier.predict_model(i) for i in xrange(n_valid_batches)]
+
+	# 	padded_pred = self.classifier.predict_model(pad)
+	# 	pred = padded_pred[:20000]
+
+	# 	return pred
 
 
 
