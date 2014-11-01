@@ -67,7 +67,7 @@ pad_test[:20000] = test_examples
 	# np.save('train_outputs_expanded', train_output_expanded)
 
 print 'Building convnet...'
-n_epochs = 1
+n_epochs = 10
 batch_size = 512
 learning_rate = 0.2
 net = ConvNet(rng = np.random.RandomState(1234),
