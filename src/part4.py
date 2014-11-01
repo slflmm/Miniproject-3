@@ -67,7 +67,7 @@ pad_test[:20000] = test_examples
 	# np.save('train_outputs_expanded', train_output_expanded)
 
 print 'Building convnet...'
-n_epochs = 10
+n_epochs = 800
 batch_size = 512
 learning_rate = 0.2
 net = ConvNet(rng = np.random.RandomState(1234),
@@ -102,8 +102,9 @@ print 'Training...'
 best_val, best_val_pred, best_pred = learner.train(learning_rate,n_epochs,batch_size)
 
 print "Best validation error: %f" % best_val
-print np.asarray(best_val_pred).shape
-print len(best_pred)
+
+np.save('/home/ml/slafla2/Miniproject-3/results/convnet_valid_predictions', np.asarray(best_val_pred).flatten())
+np.save('/home/ml/slafla2/Miniproject-3/results/convnet_test_predictions', np.asarray(best_pred).flatten())
 
 # ---------------------------
 # GRIDSEARCH CROSS-VALIDATION
