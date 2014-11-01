@@ -22,7 +22,7 @@ import matplotlib.gridspec as gridspec
 '''
 def get_gabor_features(image, gaborKernels):
 	features = []
-	for i, k in enumerate(gaborKernels):
+	for k in gaborKernels:
 		convimg = ndimage.convolve(image.reshape(48,48), k, mode='wrap')
 		features.append(convimg.mean())
 		features.append(convimg.var())
@@ -129,11 +129,15 @@ def save_train_features():
 	print "Get gabor features using default values"
 	examples = loadnp("C:/Users/MicroMicro/Documents/Benjamin/Anaconda/Miniproject-3/src/train_inputs_standardized.npy")
 	kernels = getGaborKernels()
-	data = []
-	for ex in examples:
-		f = get_gabor_features(ex, kernels)
-		data.append(f)
-		print str(len(data))
+	# data = []
+	# for ex in examples:
+	# 	f = get_gabor_features(ex, kernels)
+	# 	data.append(f)
+	# 	print str(len(data))
+
+	# this will make it go at least a bit faster than looping
+	data = map(lambda x: get_gabor_features(x, kernels), examples)
+	
 	print "Normalizing..."
 	#scaler = preprocessing.StandardScaler().fit(data)
 	#examples = scaler.transform(data)
