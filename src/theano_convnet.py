@@ -167,9 +167,9 @@ class ConvLayer(object):
 		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
 		# thus be broadcasted across mini-batches and feature map
 		# width & height
-		# self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 		# self.output = rectified_linear(pooled_out + self.b.dimshuffle('x',0,'x','x'))
-		self.output = T.log(1 + T.exp(pooled_out + self.b.dimshuffle('x',0,'x','x')))
+		# self.output = T.log(1 + T.exp(pooled_out + self.b.dimshuffle('x',0,'x','x')))
 
 		# store parameters of this layer
 		self.params = [self.W, self.b]
