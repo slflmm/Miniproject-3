@@ -73,7 +73,6 @@ class Trainer(object):
 
 		# Then do the training and validation!
 		training_error = 0
-		validation_error = None
 		epoch = 0
 
 		best_val_error = 1
@@ -101,21 +100,16 @@ class Trainer(object):
 				print 'Validation error at epoch %d is %f' % (epoch, np.mean(validation_errors)/batch_size)
 				if val_error < best_val_error:
 					best_val_error = val_error
-					best_val_predict = [self.classifier.predict_model(i) for i in xrange(n_valid_batches)]
-					best_predict = [self.classifier.predict_model(i) for i in xrange(n_test_batches)]
+					best_val_predict = [self.classifier.predict_valid(i) for i in xrange(n_valid_batches)]
+					# best_predict = [self.classifier.predict_model(i) for i in xrange(n_test_batches)]
 
 			self.classifier.decay_learning_rate()
-
-		# get validation error
-		if self.classifier.valid_set_x is not None:
-			validation_errors = [self.classifier.validate_model(i) for i in xrange(n_valid_batches)]
-			validation_error = np.mean(validation_errors)
 
 		end_time = time.clock()
 
 		print 'Finished training!\n The code ran for %.2fm.' % ((end_time - start_time) / 60.)
 
-		return best_val_error, best_val_predict, best_predict
+		return best_val_error, best_val_predict#, best_predict
 
 		
 	# def predict(self, test_set):
