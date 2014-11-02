@@ -81,7 +81,7 @@ The MNIST dataset--a collection of labelled handwritten digits, obtained from Am
 
 Bringing back the challenge of handwritten digit recognition, researchers at Universit\'{e} de Montr\'{e}al introduce noise to MNIST images to form a new dataset for difficult handwritten digit classification. Images are enlarged from $28\times28$ to $48\times48$ pixels, digits are embossed, textures from a large variety are added to the images' backgrounds, and digits are rotated by random amounts.
 
-In the context of an in-class competition, we tackle this dataset. In this paper, we report results with four classifiers; a perceptron, a fully-connected neural network, a linear SVM model, and a convolutional neural network. Moreover, when appropriate, we consider three feature sets; raw pixels, PCA features, and features derived from Gabor filters. We describe our learners and features in depth in the early sections of this report, followed by a description of our methodology and results. We end with a discussion of the implications of our findings.
+In the context of an in-class competition, we tackle this dataset. In this paper, we report results with four classifiers; a perceptron, a fully-connected neural network, a linear SVM model, and a convolutional neural network. Moreover, when appropriate, we consider three feature sets; raw pixels, PCA features, and features derived from Gabor filters. We describe our learners and features in depth in the early sections of this report, and follow-up with a description of our methodology and results. We end with a discussion of the implications of our findings.
 
 
 \section{Algorithm Selection}% for each category
@@ -240,7 +240,7 @@ To select the best feature set for this classifier, we performed a quick 2-fold 
   \label{tab:nn-features}
 \end{table}
 
-Using standardized pixel features, we performed 2-fold cross-validation over the learning rate $\alpha$, the number of layers, and the number of hidden units per layer using a random search technique. As we found during manual search that validation accuracies level off at 20 training epochs, we train our models for 20 epochs. (SHOW A FIGURE HERE)
+Using standardized pixel features, we performed 2-fold cross-validation over the learning rate $\alpha$, the number of layers, and the number of hidden units per layer using a random search technique. As we found during manual search that validation accuracies level off at 20 training epochs, we train our models for that duration. (SHOW A FIGURE HERE)
 
 We train our neural network using these hyperparameters and submit test predictions to Kaggle; this yielded a test accuracy of ???. Once more, we show the cross-validation confusion matrix in Figure ??.
 
@@ -248,74 +248,24 @@ We train our neural network using these hyperparameters and submit test predicti
 
 
 \subsection{Convolutional Neural Network}
-We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. Appendix \ref{sec:convnet-settings} elaborates on the specific hyperparameters used in the trials showed there. We obtained our best validation results with a convolutional neural network comprised of 4 convolution layers and one hidden layer, using a weight decay factor of 0.995, and rectified linear units (ReLU)  for all neurons--this activation function, written $$f(x) = \max(0.0, x),$$ is known to perform better than other activations (e.g. $\tanh$) in deep neural nets for image-related tasks, presumably because they preserve intensity information about incoming information.\cite{Nair}
+We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. We obtained our best validation results with a convolutional neural network comprised of 4 convolution layers and one hidden layer, using a weight decay factor of 0.995, and rectified linear units (ReLU)  for all neurons--this activation function, written $$f(x) = \max(0.0, x),$$ is known to perform better than bounded activations (e.g. $\tanh$) in deep neural nets for image-related tasks, presumably because they preserve intensity information about incoming information.\cite{Nair}
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{convnet_comparison}
-  	\caption{Validation scores of convolutional neural network at different hyperparameter settings}
+  	\caption{Validation scores of convolutional neural network at different hyperparameter settings. Appendix \ref{sec:convnet-settings} elaborates on the specific hyperparameters used in the trials showed here.}
   	\label{fig:convnet-compare}
 \end{figure}
 
-Our best model, whose architecture is shown in Figure \ref{fig:convnet-architect}, obtained a test accuracy of ??? on the Kaggle leaderboard. Figure ??? demonstrates an estimate of the model's confusion matrix using validation results.
+Our best model, which obtained a validation accuracy of 92.64\% after 750 training epochs, achieved a test accuracy of 92.73\% on the public Kaggle leaderboard. Figure \ref{fig:convnet-architect} shows this convolutional neural network's architecture. Figure ??? demonstrates an estimate of the model's confusion matrix using validation results at epoch 100.
 
-(something like this, but the architecture is totally subject to change)
-\begin{figure}[h!]
-\centering
-\begin{tikzpicture}[x=1.5cm, y=1.5cm, >=stealth, scale=0.55]
+ \begin{figure*}[t]
+	\centering
+	\includegraphics[width=\linewidth]{architecture.pdf}
+  	\caption{Final convolutional neural network architecture. Drawn to scale.}
+  	\label{fig:convnet-architect}
+\end{figure*}
 
-\draw[fill=white] (-0.5,-2) rectangle (0.5,-1); \node (input) at (0,-1.5) {Input};
-
-% Input conv layer
-\foreach \m/\l [count=\y] in {1,2,3,missing,4}
-  \node [every filter/.try, filter \m/.try, minimum size=0.70cm] (conv1-\m) at (2,2.25-\y*1.3) {};
-
-% Second conv layer
-\foreach \m [count=\y] in {1,2,3,4,missing,5}
-  \node [every filter/.try, filter \m/.try, minimum size=0.40cm ] (conv2-\m) at (4,2.5-\y*1.2) {};
-
-% Hidden layer
-\foreach \m [count=\y] in {1,2,3,4,5,missing,6}
-  \node [every neuron/.try, neuron \m/.try, minimum size=0.25cm] (hidden-\m) at (6,2-\y*0.9) {};
-
-% Output layer
-\foreach \m [count=\y] in {0,1,2,3,4,5,6,7,8,9}
-  \node [every neuron/.try, neuron\m/.try, minimum size=0.4cm] (output-\m) at (8, 2.0-\y*0.7){};
-
-% ALL OF THE ARROWS
-\foreach \i in {1, ..., 4}
-  \draw [->] (input.east) -- (conv1-\i);
-
-\foreach \i in {1, ..., 4}
-  \foreach \j in {1,...,5}
-    \draw [->] (conv1-\i) -- (conv2-\j);
-
-\foreach \i in {1, ..., 5}
-  \foreach \j in {1,...,6}
-    \draw [->] (conv2-\i) -- (hidden-\j);
-
-\foreach \i in {1,...,6}
-  \foreach \j in {0,...,9}
-    \draw [->] (hidden-\i) -- (output-\j);
-
-
-% Node names for output
-\foreach \I in {0,...,9}
- \draw [->] (output-\I) -- ++(1,0)
-  node [above, midway, font=\footnotesize] {$\I$};
-
-
-\foreach \l [count=\x from 0] in {Convolution, Convolution, Hidden, Output}
-  \node [align=center, above] at (1.9 + \x*2.2,2) {\l \\ layer};
-
-\foreach \l [count=\x from 0] in {16 $8\times8$\\ filters, 32 $4\times4$\\ filters, 200\\ units, One output\\ per label}
-  \node [align=center, below, font=\footnotesize] at (2 + \x*2,-5.5) {\l};
-
-
-\end{tikzpicture}
-\caption{Convolutional neural network final architecture}
-\label{fig:convnet-architect}
-\end{figure}
 
 
 \section{Discussion}% pros/cons of approach & methodology (and alternatives)
@@ -355,6 +305,39 @@ Others: \cite{Rowley}, \cite{Simard}
 
 \section{Hyperparameters for convolutional neural network}
 \label{sec:convnet-settings}
+\begin{table*}[h!]
+  \centering
+  \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+  \hline
+    {\bfseries Label} & {\bfseries Conv} & {\bfseries Hidden} & {\bfseries Filter size} & {\bfseries \# Filters} & {\bfseries \# HUs} & {\bfseries Batch size} & {\bfseries Alpha} & {\bfseries Drop} & {\bfseries Mom} & {\bfseries Perturb}\\
+    \hline \hline
+    Basic & 2 & 1 & 5ds,5ds & 20,50 & 200 & 500 & 0.1 & 0.5 & No & No\\
+    \hline
+    Perturbed & 2 & 1 & 5ds,5ds & 20,50 & 200 & 500 & 0.1 & 0.5 & No & Yes\\
+    \hline
+    Larger filt & 2 & 1 & 7ds,6ds & 20,50 & 200 & 500 & 0.1 & 0.5 & No & No\\
+    \hline
+    3 conv & 3 & 1 & 7ds,6ds,4 & 20,50,70 & 200 & 500 & 0.1 & 0.5 & No & No\\
+    \hline
+    Larger $\alpha$ & 3 & 1 & 7ds,6ds,4 & 20,50,70 & 200 & 512 & 0.25 & 0.5 & No & No\\
+    \hline
+    LR decay & 3 & 1 & 7ds,6ds,4 & 32,64,80 & 200 & 512 & 0.2, dec 0.995 & 0.5 & No & No\\
+    \hline
+    4 conv & 4 & 1 & 7ds,6,5,5 & 32,64,80,80 & 200 & 512 & 0.2, dec 0.995 & 0.5 & No & No\\
+    \hline
+    {\bfseries ReLU} & 4 & 1 & 7ds,6,5,5 & 32,64,80,80 & 200 & 512 & 0.2, dec 0.995 & 0.5 & No & No\\
+    \hline
+    9 & 3 & 1 & 7ds,6ds,4 & 32,64,80 & 200 & 512 & 0.2 & 0.5 & 0.1 & No\\
+    \hline
+    10 & 3 & 1 & 7ds,6ds,4 & 32,64,80 & 200 & 512 & 0.2 & 0.5 & 0.9 & No\\
+    \hline
+    11 & 3 & 1 & 7ds,6ds,4 & 20,50,70 & 200 & 256 & 0.25 & 0.5 & No & No\\
+    \hline
+  \end{tabular}
+  \caption{Some hyperparameters tested for convolutional neural network. Those labelled with numbers are not shown in Figure \ref{fig:convnet-compare} because they show little of interest. The notation `ds' refers to downsampling after filter application. ReLU was our best model.}
+  \label{tab:convnet-params}
+\end{table*}
+
 
 
 \balancecolumns
