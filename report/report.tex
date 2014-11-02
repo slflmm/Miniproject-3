@@ -83,7 +83,7 @@ We implement a multiclass perceptron as a baseline classifier. Given $n$ example
 where $f$ is the Heaviside step function, $x$ is an example, and $y$ is its class.
 
 \subsection{Fully-Connected Neural Network}
-The fully-connected neural network, also known as a multilayer perceptron, concatenates layers of perceptrons, but uses a softer activation function than the step function. The advantage of this arrangement over a single layer is that complex, non-linear functions can be learned; for instance, a linear learner cannot encode the XOR function, but a neural network can do it with only two layers. Our implementation uses the easily differentiable sigmoid, written $$\sigma(z) = \cfrac{1}{1 + e^{-z}}.$$ The weights of each layer are learned by gradient descent on the sum-squared error, $$Err(x) = \frac{1}{2}(y - h_w(x))^2,$$ where $h_w(x)$ is the network's current guess for the label of example $x$ and $y$ is its true label.
+The fully-connected neural network, also known as a multilayer perceptron, concatenates layers of perceptrons, but uses a softer activation function than the step function. The advantage of this arrangement over a single layer is that complex, non-linear functions can be learned; for instance, a linear learner cannot encode the XOR function, but a neural network can do it with only two layers. Our implementation uses the easily differentiable sigmoid, written $$\sigma(z) = \cfrac{1}{1 + e^{-z}}.$$ The weights of each layer are learned by gradient descent on the error, $$Err(x) = y - h_w(x),$$ where $h_w(x)$ is the network's current guess for the label of example $x$ and $y$ is its true label.
 
 \subsection{Linear SVM}
 We use the scikit-learn \cite{scikit-learn} library's `SVC' implementation of a linear SVM (support vector machine). This learning algorithm solves the quadratic optimization problem written as
@@ -125,6 +125,8 @@ As removing the least useful features made the results of our baseline classifie
 \subsection{Gabor}
 Gabor filters are linear filters used for edge detection and are thought to be similar to the early stages of visual processing in humans. Their frequency and orientations correspond roughly to simple cells in the visual cortex of humans and other mammals; these cells can be modelled with Gabor functions.\cite{Jones}\cite{Marvcelja} As these filters are well-suited to image processing, we attempt to translate them into features.
 
+We use two kinds of Gabor filters: for the perceptron and fully-connected neural network, we use a simplified expression due to lack of time and memory; we describe these features in more detail below. For the linear SVM model, we take advantage of scikit-learn's online learning capacity and use as features the pixels of the results of convolving each filter with an image.
+
 Previous research has used the energy of the convolution between a Gabor filters and image (a measure of how strongly the filter responds to that image\cite{Grigorescu}) as a feature by summing its magnitudes in the image.\cite{Bau} This is equivalent to using the Frobenius norm of the convolved image as a feature. 
 
 Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters with 8 equidistant $\theta$ values, $\sigma = \{1, 3\}$, and frequencies $= \{0.05, 0.25\}$. Figure \ref{fig:gabor} illustrates the effects of $\theta$, $\sigma$, and frequency with a sample of our filters. We form the feature vector of an image in the dataset by collecting the Frobenius norms of the image convolved with each filter. 
@@ -136,8 +138,6 @@ Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters 
   	\label{fig:gabor}
 \end{figure}
 
-\subsection{Perturbed}
-For the convolutional neural network, we use contrast-normalized pixels, but also compare an extended dataset to the provided examples. We double the size of the training set by introducing a randomly rotated version of each example.
 
 
 \section{Optimization} 
@@ -150,7 +150,7 @@ For each learner, we fix the hyperparameters to compare the performance of appro
 The perceptron can use pixel, PCA, or Gabor features. We initially fix the hyperparameters to identify the most promising feature set using 5-fold cross-validation. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35; the averaged validation accuracy from 5-fold cross-validation is used as a measure of success for the hyperparameter setting. 
 
 \subsection{Fully-Connected Neural Network}
-The neural network can also use pixel, PCA, or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier using results from 5-fold cross-validation. Then, we perform random search for 15 hyperparameter settings selected over the space of hyperparameters; we use mean accuracy from 5-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
+The neural network can also use pixel, PCA, or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier; we use results from 2-fold cross-validation, as neural networks take a long time to train. Then, we perform random search over 15 hyperparameter settings; we use mean accuracy from 2-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
@@ -158,10 +158,8 @@ The neural network can also use pixel, PCA, or Gabor features. As we did for the
     {\bfseries Hyperparameter} & {\bfseries Values}\\
     \hline \hline
     Number of layers & \{1, 2\} \\
-    Hidden units per layer & \{10, 15, ..., 50\} \\
-    Learning rate & $(0, 0.1]$ \\
-    Momentum & $[0.1, 0.9]$ \\
-    Training epochs & $\{50, ..., 200\}$ \\
+    Hidden units per layer & \{10, 15, ..., 30\} \\
+    Learning rate & $[0.0001, 0.1]$ \\
     \hline
   \end{tabular}
   \caption{Neural network hyperparameters and their considered values}
@@ -174,9 +172,7 @@ As we do for the perceptron and fully-connected neural network,
 
 
 \subsection{Convolutional Neural Network}
-The only appropriate features for a convolutional neural network are pixel features. We use contrast-normalization within images, and also consider the perturbation-extended dataset. 
-
-We must optimize many hyperparameters; in addition to those for the fully-connected neural network, we must also consider the dropout rate, as well as the number of convolution layers, the number of filters per layer, and the filter sizes. We must also consider activation functions, learning rate decay, and momentum rate. Due to time constraints, we can only sample a small portion of this very large parameter space. Hence, we select hyperparameters with manual search and train models until they reach a plateau to compare their performance.
+The only appropriate features for a convolutional neural network are pixel features. We must optimize many hyperparameters; in addition to those for the fully-connected neural network, we must also consider the dropout rate, as well as the number of convolution layers, the number of filters per layer, and the filter sizes. We must also consider activation functions, learning rate decay, and momentum rate. Due to time constraints, we can only sample a small portion of this very large parameter space. Hence, we select hyperparameters with manual search and train models until they reach a validation accuracy plateau to compare their performance. It should be noted that, due to time concerns, we simply use 10\% of the training data as a validation set rather than our usual cross-validation method.
 
 We start from the parameters used in Theano's convolutional network tutorial, where they train a network on the MNIST dataset. That is, we start with two convolutional layers with 20 and 50 filters respectively, each with filter sizes $5\times 5$. We use a learning rate $\alpha = 0.1$, without momentum, learning rate decay, or the extended dataset. From there, we apply modifications to each parameter and attempt to find a good model.
 
@@ -220,15 +216,30 @@ After training our perceptron on the complete training set using these parameter
 \end{figure}
 
 \subsection{Fully-Connected Neural Network}
-Try a baseline net with the three feature sets, compare (5-fold cross-validation).
+To select the best feature set for this classifier, we performed a quick 2-fold cross-validation with each feature set, setting $\alpha = 0.01$, with one layer of 15 hidden units, and training for 10 epochs. Table \ref{tab:nn-features} shows the mean validation accuracies of each feature set; standardized pixel features performed best with 32.570\% accuracy.
 
-Use the best feature set to find best hyperparameters with cross-validation. You should probably try random search rather than gridsearch (faster and just as good or better), for some set number of configurations. Use some graph to show the hyperparameter space results. Plot validation confusion matrix. Say the test set (kaggle) result using best model found during crossval.
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|c||c|c|c| }
+    \hline
+    {\bfseries Features} & Pixels & PCA & Gabor \\
+    \hline
+    {\bfseries Accuracy} & 32.570 & 32.482 & 12.944 \\
+    \hline
+  \end{tabular}
+  \caption{Mean validation accuracy of neural network using different features}
+  \label{tab:nn-features}
+\end{table}
+
+Using standardized pixel features, we performed 2-fold cross-validation over the learning rate $\alpha$, the number of layers, and the number of hidden units per layer using a random search technique. As we found during manual search that validation accuracies level off at 20 training epochs, we train our models for 20 epochs. (SHOW A FIGURE HERE)
+
+We train our neural network using these hyperparameters and submit test predictions to Kaggle; this yielded a test accuracy of ???. Once more, we show the cross-validation confusion matrix in Figure ??.
 
 \subsection{Linear SVM}
 
 
 \subsection{Convolutional Neural Network}
-We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. Appendix \ref{sec:convnet-settings} elaborates on the specific hyperparameters used in the trials showed there.
+We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. Appendix \ref{sec:convnet-settings} elaborates on the specific hyperparameters used in the trials showed there. We obtained our best validation results with a convolutional neural network comprised of 4 convolution layers and one hidden layer, using a weight decay factor of 0.995, and rectified linear units (ReLU)  for all neurons--this activation function, written $$f(x) = \max(0.0, x),$$ is known to perform better than other activations (e.g. $\tanh$) in deep neural nets for image-related tasks, presumably because they preserve intensity information about incoming information.\cite{Nair}
 
 \begin{figure}[h!]
 	\centering

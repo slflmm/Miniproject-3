@@ -11,9 +11,13 @@
    9    |		3		|	   1		|   (7,6,4)np |     (32, 64, 80)  |    200		 |    512  	  |  0.2  |   0.50  |   0.1    |    None   | 
   10    |		3		|	   1		|   (7,6,4)np |     (32, 64, 80)  |    200		 |    512  	  |  0.2  |   0.50  |   0.9    |    None   | 
 
-0.005 decay no momentum
+11 0.005 decay no momentum
 
-try 4 layers no downsampling
+12 try 4 layers no downsampling
+
+13 with ReLus 
+
+add momentum back?
 
 try again perturbations
 
