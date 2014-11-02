@@ -40,7 +40,7 @@ class Trainer(object):
 
 		n_train_batches = self.classifier.train_set_x.get_value(borrow=True).shape[0] / batch_size
 		n_valid_batches = self.classifier.valid_set_x.get_value(borrow=True).shape[0] / batch_size
-		n_test_batches = self.classifier.test_set.get_value(borrow=True).shape[0]/batch_size
+		# n_test_batches = self.classifier.test_set.get_value(borrow=True).shape[0]/batch_size
 		# x = T.matrix('x')
 		# y = T.ivector('y')
 		# index = T.lscalar()
