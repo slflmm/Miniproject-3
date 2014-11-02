@@ -186,7 +186,7 @@ def convnet_visualize():
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 
-	epochs = range(10,410,10)
+	epochs = range(10,430,10)
 
 	convnet2 = [252.200000,190.500000,154.700000,130.500000,124.400000,119.100000,109.800000,105.000000,109.600000,107.600000,97.800000,98.200000,99.200000,100.600000,99.900000,95.900000,98.800000,93.200000] 
 	convnet2 = map(lambda x: 1 - x/500, convnet2)
@@ -229,12 +229,16 @@ def convnet_visualize():
 	convnet12 = map(lambda x: 1 - x, convnet12)
 	convnet12 += [None]*(len(epochs) - len(convnet12))
 
+	convnet13 = [0.339193,0.156033,0.138672, 0.126085,0.107856,0.111111,0.102214,0.101780,0.105686,0.099826,0.095269,0.095269,0.099392,0.093533,0.091146,0.092014, 0.096788,0.089627,0.090929,0.089410,0.089193,0.083767,0.087674,0.088759, 0.090061, 0.088542,0.085720, 0.083767, 0.083333, 0.088542, 0.083116,0.087891, 0.081814,0.085286,0.084852,0.088976,0.085720,0.081163,0.085069,0.079861,0.082248,0.080512]
+	convnet13 = map(lambda x: 1-x, convnet13)
+	convnet13 += [None]*(len(epochs)-len(convnet13))
+
 	c2, = ax.plot(epochs, convnet2, marker='D', color='green', label='Basic')
 	c3, = ax.plot(epochs, convnet3, marker='x', color='red', label='Perturbed')
 	c4, = ax.plot(epochs, convnet4, marker='o', color='blue', label='Larger filters')
 	c5, = ax.plot(epochs, convnet5, marker='v', color='magenta', label='3 conv layers')
 	c6, = ax.plot(epochs, convnet6, marker='s', color='cyan', label='Larger alpha')
-	c7, = ax.plot(epochs, convnet7, marker='*', color='yellow', label='Smaller minibatch')
+	c7, = ax.plot(epochs, convnet13, marker='*', color='yellow', label='ReLu')
 	c8, = ax.plot(epochs, convnet12, marker='D', color='black', label='4 conv layers')
 	c9, = ax.plot(epochs, convnet10, marker='x', color='red', label='Momentum')
 	c10, = ax.plot(epochs, convnet11, marker='o', color='blue', label='LR decay')
