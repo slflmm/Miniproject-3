@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.pylab import *
 from features import *
+from utils import *
 
 # ------------------
 # PERCEPTRON RESULTS
@@ -68,8 +69,8 @@ class PerceptronPlotter(object):
 
 		plt.xticks(np.arange(10))
 		plt.yticks(np.arange(10))
-		ax.set_title('True label', fontsize=16)
-		ax.set_ylabel('Prediction', fontsize=16)
+		ax.set_title('Prediction', fontsize=16)
+		ax.set_ylabel('True label', fontsize=16)
 
 		plt.savefig('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/report/perceptron_confusion.pdf')
 
@@ -238,10 +239,9 @@ def convnet_visualize():
 	c4, = ax.plot(epochs, convnet4, marker='o', color='blue', label='Larger filters')
 	c5, = ax.plot(epochs, convnet5, marker='v', color='magenta', label='3 conv layers')
 	c6, = ax.plot(epochs, convnet6, marker='s', color='cyan', label='Larger alpha')
-	c7, = ax.plot(epochs, convnet13, marker='*', color='yellow', label='ReLu')
-	c8, = ax.plot(epochs, convnet12, marker='D', color='black', label='4 conv layers')
-	c9, = ax.plot(epochs, convnet10, marker='x', color='red', label='Momentum')
-	c10, = ax.plot(epochs, convnet11, marker='o', color='blue', label='LR decay')
+	c10, = ax.plot(epochs, convnet11, marker='o', color='purple', label='LR decay')
+	c8, = ax.plot(epochs, convnet12, marker='D', color='yellow', label='4 conv layers')
+	c7, = ax.plot(epochs, convnet13, marker='*', color='black', label='ReLu')
 
 	handles, labels = ax.get_legend_handles_labels()
 	ax.legend(handles, labels, loc=0)
@@ -254,11 +254,37 @@ def convnet_visualize():
 
 	plt.savefig('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/report/convnet_comparison.pdf')
 
+
+def convnet_confusion():
+	valid_predictions = loadnp('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/convnet_valid_predictions.npy')
+	valid_groundtruth = loadnp("/Users/stephanielaflamme/Desktop/data_and_scripts/train_outputs.npy")[:5000]
+
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	# make the matrix...
+	mat = get_confusion_matrix(valid_groundtruth, valid_predictions).tolist()
+
+	cax = ax.matshow(mat, cmap=cm.jet)
+	fig.colorbar(cax)
+
+	for x in xrange(10):
+		for y in xrange(10):
+			ax.annotate('%4.2f' % (mat[x][y]), xy=(y,x), horizontalalignment='center', verticalalignment='center', color='white')
+
+	plt.xticks(np.arange(10))
+	plt.yticks(np.arange(10))
+	ax.set_title('Prediction', fontsize=16)
+	ax.set_ylabel('True label', fontsize=16)
+
+	plt.savefig('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/report/convnet_confusion.pdf')
+
 # ------------------------------------------
 # Do the actual graphing of your choice here
 # ------------------------------------------
-convnet_visualize()
-
+# convnet_visualize()
+# convnet_confusion()
+p = PerceptronPlotter()
+p.conf_matrix()
 
 
 

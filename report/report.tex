@@ -257,7 +257,7 @@ We experimented with a number of hyperparameter settings. Figure \ref{fig:convne
   	\label{fig:convnet-compare}
 \end{figure}
 
-Our best model, which obtained a validation accuracy of 92.64\% after 750 training epochs, achieved a test accuracy of 92.73\% on the public Kaggle leaderboard. Figure \ref{fig:convnet-architect} shows this convolutional neural network's architecture. Figure ??? demonstrates an estimate of the model's confusion matrix using validation results at epoch 100.
+Our best model, which obtained a validation accuracy of 92.64\% after 750 training epochs, achieved a test accuracy of 92.73\% on the public Kaggle leaderboard. Figure \ref{fig:convnet-architect} shows this convolutional neural network's architecture. Figure \ref{fig:convnet-confusion} displays an estimate of the model's confusion matrix using validation results at epoch 100.
 
  \begin{figure*}[t]
 	\centering
@@ -266,6 +266,12 @@ Our best model, which obtained a validation accuracy of 92.64\% after 750 traini
   	\label{fig:convnet-architect}
 \end{figure*}
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{convnet_confusion.pdf}
+  	\caption{Confusion matrix on validation set for convolutional neural network after 100 training epochs}
+  	\label{fig:convnet-confusion}
+\end{figure}
 
 
 \section{Discussion}% pros/cons of approach & methodology (and alternatives)
