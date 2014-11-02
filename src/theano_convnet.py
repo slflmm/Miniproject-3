@@ -334,7 +334,7 @@ class ConvNet(object):
 					x: self.test_set[index * batch_size:(index + 1) * batch_size]
 				})
 
-		if valid_set is not None:
+		if valid_set_x is not None:
 			self.predict_valid = theano.function(inputs=[index],
 				outputs=self.layers[-1].y_pred,
 				givens={
