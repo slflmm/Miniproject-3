@@ -1,11 +1,13 @@
 import numpy as np
 import utils
+import random
+import math
 
 "----- Neural Network Classifier -----"
 class NeuralNetworkClassifier:
 
     layerCount = 0
-    nBatchSize = 500
+    nBatchSize = 50
     shape = None
     weights = []
     transferFuncs = []
@@ -13,6 +15,7 @@ class NeuralNetworkClassifier:
     "----- Initialization -----"
     def __init__(self, layerSize):
 
+        print("Mini Batch Size {0}".format(self.nBatchSize))
         self.layerCount = len(layerSize) - 1
         self.shape = layerSize
 
@@ -53,18 +56,19 @@ class NeuralNetworkClassifier:
         return self._outputLayer[-1].T
 
     "----- TrainingEpoch: back propagation and gradient descent -----"
-    def TrainingEpoch(self, input, target, lenMiniBatch, alpha = 0.1, lmbda = 0.0, beta = 0.5):
+    def TrainingEpoch(self, input, target, alpha = 0.1, lmbda = 0.0, beta = 0.5):
         delta = []
         nSamples = input.shape[0]
 
-        yPredit = self.FeedForward(input)
-        accuracy = self.Evaluate(yPredit, target.T)
+        yPredict = self.FeedForward(input)
+        accuracy = self.Evaluate(yPredict, target.T)
 
         "Compute delta updates in decreasing order of the layers"
         for index in reversed(range(self.layerCount)):
             if index == self.layerCount - 1:
                 output_delta = self._outputLayer[index] - target.T
-                error = np.sum(output_delta**2)
+                error = np.mean(output_delta**2)
+                print("error {0}".format(error))
                 delta.append(output_delta * self.transferFuncs[index](self._inputLayer[index], False))
             else:
                 delta_pullback = self.weights[index + 1].T.dot(delta[-1])
@@ -83,7 +87,7 @@ class NeuralNetworkClassifier:
             curDeltaWeight = np.sum(outputXdelta, axis = 0)
 
             L1 = (1-alpha*(lmbda/nSamples))*self.weights[index]
-            deltaWeight = (alpha/lenMiniBatch) * curDeltaWeight + (beta/lenMiniBatch) * self._prevDeltaWeight[index]
+            deltaWeight = (alpha/self.nBatchSize) * curDeltaWeight + (beta/self.nBatchSize) * self._prevDeltaWeight[index]
 
             self.weights[index] = L1 - deltaWeight
 
@@ -93,27 +97,31 @@ class NeuralNetworkClassifier:
 
     def Evaluate(self, yPredict, yActual):
 
-        y = []
+        #y = []
 
-        for i in range(yActual.shape[0]):
-            y.append(np.argmax(yPredict[i]))
+        #yPredict = yPredict.T
+        np.savetxt("foo.csv", yPredict, delimiter=",")
+        y = yPredict.argmax(axis=1)
+        #for i in range(yActual.shape[0]):
+        #    y.append(np.argmax(yPredict[i, :]))
 
         accuracy = np.sum(y == yActual)
         accuracy /= yActual.shape[0]
-
+        print("yPredict {0}".format(y))
+        print("yActual {0}".format(yActual))
         return accuracy
 
-'''
-    "----- Update Mini Batch -----"
-    def UpdateMiniBatch(self, miniBatch, alpha):
+    def miniBatches(self, X, y, batchSize):
 
-        nabla_w = [np.zeros(w.shape) for w in self.weights]
-        for x, y in miniBatch:
-            delta_nabla_b, delta_nabla_w = self.TrainingEpoch(x, y)
-            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(mini_batch))*nw
-                        for w, nw in zip(self.weights, nabla_w)]
-        self.biases = [b-(eta/len(mini_batch))*nb
-                       for b, nb in zip(self.biases, nabla_b)]
-'''
+        rnd = np.random.RandomState()
+
+        m = X.shape[0]
+        batchSize = batchSize if batchSize >= 1 else int(math.floor(m * batchSize))
+        maxBatchs = int(math.floor(m / batchSize))
+
+        while True:
+            randomIndices = rnd.choice(np.arange(m), m, replace=False)
+            for i in range(maxBatchs):
+                batchIndices = np.arange(i * batchSize, (i + 1) * batchSize)
+                indices = randomIndices[batchIndices]
+                yield X[indices], y[indices]

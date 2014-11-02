@@ -1,6 +1,5 @@
 import numpy as np
 import utils
-import random
 import NNClassifier as nnClassifier
 
 trainingInput = np.load('standardized_train_inputs.npy')
@@ -17,10 +16,10 @@ nFeatures = trainingInput.shape[1]
 print("RUN 3...")
 
 lmbda = 5
-alpha = 0.1
-beta = 0.4
-nodes = 101
-nIter = 100
+alpha = 1e-05
+beta = 0.1
+nodes = 31
+nIter = 170
 nLayers = 2
 
 if nLayers == 1:
@@ -43,28 +42,18 @@ for kFold in range(5):
 
     nTrainBatches = int(xTrain.shape[0] / nnc.nBatchSize)
 
-    #print("---#trainBatches {0}".format(nTrainBatches))
-
     trainingAccuracy = 0
     validationAccuracy = 0
 
-    xy = np.insert(xTrain, nFeatures, yTrain, axis = 1) #merge x and y
-
-    for nIt in range(nIter):
-        random.shuffle(xy)
-        miniBatches = [
-            xy[k : k+nnc.nBatchSize]
-            for k in range(0, nTrainBatches, nnc.nBatchSize)]
-        for miniBatch in miniBatches:
-            lenMiniBatch = len(miniBatch)
-            xMiniBatch = miniBatch[:, :-1]
-            yMiniBatch = miniBatch[:, -1]
-            miniBatchAcc = nnc.TrainingEpoch(xMiniBatch, yMiniBatch, lenMiniBatch, alpha, lmbda, beta)
-
+    nIt = 0
+    for xMiniBatch, yMiniBatch in nnc.miniBatches(xTrain, yTrain, nnc.nBatchSize):
+        miniBatchAcc = nnc.TrainingEpoch(xMiniBatch, yMiniBatch, alpha, lmbda, beta)
         if nIt == nIter - 1:
             trainingAccuracy = miniBatchAcc
             _trainingAccuracy.append(trainingAccuracy)
             print("--trainingAccuracy {0}".format(trainingAccuracy))
+            break
+        nIt += 1
 
     yPredict = nnc.FeedForward(xValid)
     validationAccuracy = nnc.Evaluate(yPredict, yValid)
@@ -76,21 +65,3 @@ print("Training Accuracy {0} : Validation Accuracy {1}".format((np.mean(_trainin
 
 
 #testInput = np.load('test_inputs_standardized.npy')
-'''
-        for nBatchIndex in range(nTrainBatches):
-            n = nnc.nBatchSize * nBatchIndex
-            m = nnc.nBatchSize * (nBatchIndex + 1)
-            xTrainBatch = xTrain[n:m,:]
-            yTrainBatch = yTrain[n:m]
-            miniBatchAcc = nnc.TrainingEpoch(xTrainBatch, yTrainBatch, alpha, beta)
-
-        if nIt == nIter:
-            trainingAccuracy = miniBatchAcc
-            _trainingAccuracy.append(trainingAccuracy)
-            print("--trainingAccuracy {0}".format(trainingAccuracy))
-
-        trainingAccuracy = nnc.TrainingEpoch(xTrain, yTrain, alpha, beta)
-        if nIt == nIter:
-            _trainingAccuracy.append(trainingAccuracy)
-            print("--trainingAccuracy {0}".format(trainingAccuracy))
-        '''
