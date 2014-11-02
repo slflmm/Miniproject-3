@@ -338,7 +338,7 @@ class ConvNet(object):
 			self.predict_valid = theano.function(inputs=[index],
 				outputs=self.layers[-1].y_pred,
 				givens={
-					x: self.valid_set[index * batch_size:(index + 1) * batch_size]
+					x: self.valid_set_x[index * batch_size:(index + 1) * batch_size]
 				})
 
 		self.decay_learning_rate = theano.function(inputs=[], outputs=self.learning_rate,
