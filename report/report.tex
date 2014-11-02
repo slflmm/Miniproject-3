@@ -12,6 +12,15 @@
 \usetikzlibrary{positioning}
 \usepackage{wasysym}
 
+% \stack{5}{(4,0)}{(3,2)}{Label} draws a stack of 5 at (4,0) with dimensions (3,2)
+% and labels the center with "Label"
+\newcommand{\stack}[4]{
+  \foreach \i in {1,...,#1} {
+    \draw[fill=blue!50] #2 ++({0.1*(#1)},{-0.1*(#1)}) ++({-0.1*\i},{0.1*\i}) rectangle +#3;
+  }
+  \path #2 -- +#3 node[pos=0.5] {#4};
+}
+
 \tikzset{%
   every neuron/.style={
     circle,
@@ -68,11 +77,11 @@ Stephanie Laflamme\\
 \end{abstract}
 
 \section{Introduction}% overview of approach
-- Talk about the dataset and the difficulty with it
+The MNIST dataset--a collection of labelled handwritten digits, obtained from American Census Bureau employees and high school students\cite{LeCun2}--has been widely used as a benchmark in machine learning. However, handwritten digit recognition in the style of the MNIST dataset can very well be considered a solved problem; indeed, the best learners achieve near-human performance at correctly labelling new digits\cite{Ciresan}, obtaining a peak accuracy of $99.79\%$\cite{Wan}.
 
-- Discuss features
+Bringing back the challenge of handwritten digit recognition, researchers at Universit\'{e} de Montr\'{e}al introduce noise to MNIST images to form a new dataset for difficult handwritten digit classification. Images are enlarged from $28\times28$ to $48\times48$ pixels, digits are embossed, textures from a large variety are added to the images' backgrounds, and digits are rotated by random amounts.
 
-- Discuss learners
+In the context of an in-class competition, we tackle this dataset. In this paper, we report results with four classifiers; a perceptron, a fully-connected neural network, a linear SVM model, and a convolutional neural network. Moreover, when appropriate, we consider three feature sets; raw pixels, PCA features, and features derived from Gabor filters. We describe our learners and features in depth in the early sections of this report, followed by a description of our methodology and results. We end with a discussion of the implications of our findings.
 
 
 \section{Algorithm Selection}% for each category
@@ -113,7 +122,7 @@ For the convolutional neural network, we apply local contrast normalization; giv
 When appropriate for the learner, we consider three feature sets; standardized raw pixels, PCA, and Gabor filter-based features. For the open method, we consider contrast-normalized raw pixels and the addition of rotation-perturbed examples.
 
 \subsection{Pixels}
-We use the post-standardization pixel information as a baseline feature set.This produces feature vectors of length 2304. 
+We use the post-preprocessing pixel information as a baseline feature set.This produces feature vectors of length 2304. 
 
 \subsection{PCA}
 Principal component analysis (PCA), developed by Pearson in the early 1900s\cite{Pearson}, converts a set of possibly correlated features into a linearly uncorrelated representation, with the resulting features ordered by variance. 
@@ -299,7 +308,7 @@ Our best model, whose architecture is shown in Figure \ref{fig:convnet-architect
 \foreach \l [count=\x from 0] in {Convolution, Convolution, Hidden, Output}
   \node [align=center, above] at (1.9 + \x*2.2,2) {\l \\ layer};
 
-\foreach \l [count=\x from 0] in {16 $8\times8$\\ filters, 32 $4\times4$\\ filters, 256\\ units, One output\\ per label}
+\foreach \l [count=\x from 0] in {16 $8\times8$\\ filters, 32 $4\times4$\\ filters, 200\\ units, One output\\ per label}
   \node [align=center, below, font=\footnotesize] at (2 + \x*2,-5.5) {\l};
 
 
