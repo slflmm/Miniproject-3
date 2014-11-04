@@ -113,6 +113,7 @@ class NeuralNet(HandmadeClassifier):
 					layer = np.atleast_2d(a[i])
 					delta = np.atleast_2d(deltas[i])
 					self.weights[i] += self.alpha * layer.T.dot(delta)
+			print 'Finished epoch %d' % (k+1)
 
 	def predict(self, example):
 		'''
