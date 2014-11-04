@@ -40,7 +40,7 @@ Stephanie Laflamme\\
 
 \maketitle
 \begin{abstract}
-
+In order to revive the challenge of digit classification, researchers at  Universit\'{e} de Montr\'{e}al have built a new, challenging dataset by applying transformations to MNIST images. We provide baseline results from a perceptron, a fully-connected neural network, and a linear SVM model, using both pixel features and features based on Gabor filters. Moreover, we present impressive results from a convolutional neural network, obtaining a test accuracy of 92.73\%. We discuss the implications of our results and suggest further avenues of research.
 \end{abstract}
 
 \section{Introduction}% overview of approach
@@ -48,7 +48,7 @@ The MNIST dataset--a collection of labelled handwritten digits, obtained from Am
 
 Bringing back the challenge of handwritten digit recognition, researchers at Universit\'{e} de Montr\'{e}al introduce noise to MNIST images to form a new dataset for difficult handwritten digit classification. Images are enlarged from $28\times28$ to $48\times48$ pixels, digits are embossed, textures from a large variety are added to the images' backgrounds, and digits are rotated by random amounts.
 
-In the context of an in-class competition, we tackle this dataset. In this paper, we report results with four classifiers; a perceptron, a fully-connected neural network, a linear SVM model, and a convolutional neural network. Moreover, when appropriate, we consider three feature sets; raw pixels, PCA features, and features derived from Gabor filters. We describe our learners and features in depth in the early sections of this report, and follow-up with a description of our methodology and results. We end with a discussion of the implications of our findings.
+In the context of an in-class competition, we tackle this dataset. In this paper, we report results with four classifiers; a perceptron, a fully-connected neural network, a linear SVM model, and a convolutional neural network. Moreover, when appropriate, we consider two feature sets; raw pixels and features derived from Gabor filters. We describe our learners and features in depth in the early sections of this report, and follow-up with a description of our methodology and results. We end with a discussion of the implications of our findings.
 
 
 \section{Algorithm Selection}% for each category
@@ -78,25 +78,20 @@ We note that neural networks with many layers tend to overfit; there may be many
 
 The application of dropout to convolutional neural network has been successfully applied; Krizhevsky et al. applied dropout to the hidden layer weights of their convolutional neural network, and vastly outperformed other methods on an ImageNet classification competition.\cite{Krizhevsky} 
 
-In light of these findings, we implement our own convolutional neural network. Its architecture consists of a variable number of convolution layers, followed by a variable number of hidden layers and the output layer. We apply dropout to the hidden layers, and train our network using minibatch SGD. We also experiment with the use of learning rate decay and momentum.
+We also consider rectifier linear units (ReLUs) as activations, written $$f(x) = \max(0.0, x).$$ This activation function is known to perform better than bounded activations (e.g. $\tanh$) in deep neural nets for image-related tasks, presumably because they preserve intensity information about incoming information.\cite{Nair}
+
+In light of these findings, we implement our own convolutional neural network. Its architecture consists of a variable number of convolution layers, followed by a variable number of hidden layers and the output layer. We consider both $\tanh$ and ReLU activations, and apply dropout to the hidden layers.  We also experiment with the use of learning rate decay and momentum. Our network is trained using minibatch SGD.
 
 \section{Preprocessing}
 The raw pixels are normalized. In the case of the perceptron, fully-connected neural network, and linear SVM learners, they are standardized. For each example $i$ in the training set, and each feature $j$, we replace features with their standardized value $$x'_{ij} = \cfrac{x_{ij} - \mu_{j}}{\sigma_{j}},$$ where $\mu_j$ is the average value for feature $j$ and $\sigma_j$ is its standard deviation. These values for $\mu_j$ and $\sigma_j$ are subsequently used to apply the same transformation to the test set examples.
 
-For the convolutional neural network, we apply local contrast normalization; given a $48\times48$ image $X$ from the dataset, we let $$X = \cfrac{256\times (X - X_{min})}{X_{max} - X_{min}},$$ where $X_{max}$ and $X_{min}$ are the maximum and minimum values in $X$'s pixels, respectively. 
+For the convolutional neural network, we apply local contrast normalization; given a $48\times48$ image $X$ from the dataset, we let $$X = \cfrac{(X - X_{min})}{X_{max} - X_{min}},$$ where $X_{max}$ and $X_{min}$ are the maximum and minimum values in $X$'s pixels, respectively. This ensures that pixel intensity falls between 0 and 1, which allows us to safely use rectifier linearities as activation functions.
 
 \section{Feature Design and Selection}
-When appropriate for the learner, we consider three feature sets; standardized raw pixels, PCA, and Gabor filter-based features. For the open method, we consider contrast-normalized raw pixels and the addition of rotation-perturbed examples.
+When appropriate for the learner, we consider two feature sets; standardized raw pixels and Gabor filter-based features. For the open method, we consider contrast-normalized raw pixels and the addition of rotation-perturbed examples.
 
 \subsection{Pixels}
 We use the post-preprocessing pixel information as a baseline feature set.This produces feature vectors of length 2304. 
-
-\subsection{PCA}
-Principal component analysis (PCA), developed by Pearson in the early 1900s\cite{Pearson}, converts a set of possibly correlated features into a linearly uncorrelated representation, with the resulting features ordered by variance. 
-
-We use the implementation of PCA provided by the Scikit-learn library\cite{scikit-learn}, which uses singular value decomposition of the input data matrix.
-
-As removing the least useful features made the results of our baseline classifier worse, we keep full dimensionality. However, we expect PCA features to produce better results given that they are linearly uncorrelated.
 
 \subsection{Gabor}
 Gabor filters are linear filters used for edge detection and are thought to be similar to the early stages of visual processing in humans. Their frequency and orientations correspond roughly to simple cells in the visual cortex of humans and other mammals; these cells can be modelled with Gabor functions.\cite{Jones}\cite{Marvcelja} As these filters are well-suited to image processing, we attempt to translate them into features.
@@ -114,7 +109,8 @@ Using the Scikit-learn library\cite{scikit-learn}, we generate 16 Gabor filters 
   	\label{fig:gabor}
 \end{figure}
 
-
+\subsection{Rotation perturbations}
+We introduce a new training set by perturbing a copy of each training example with a random rotation. This doubles the size of our training data; we predict that this dataset will perform better with the convolutional neural network, as these learners tend to benefit from an increase in the number of examples.
 
 \section{Optimization} 
 Given the vast amount of time required to train a convolutional neural network, we implement ours to run on a GPU. This reduces the training time by approximately a factor of 10. We use Theano\cite{Theano}, a symbolic Python library that compiles computation-heavy functions in C and can execute them on a GPU. We use the cuda-convnet implementation of convolutions\cite{Krizhevsky}, which offers a 3-fold speed improvement relative to Theano's convolution function.
@@ -123,10 +119,10 @@ Given the vast amount of time required to train a convolutional neural network, 
 For each learner, we fix the hyperparameters to compare the performance of appropriate feature sets, and perform a preliminary manual inspection to identify viable hyperparameters, followed up by either the traditional gridsearch, or a random search. In cases where there are many hyperparameters and training is long, random search offers a faster alternative to gridsearch for finding good hyperparameters. It has been shown to obtain results as good as or better than gridsearch\cite{Bergstra}. The details of parameter selection are discussed in this section.
 
 \subsection{Perceptron}
-The perceptron can use pixel, PCA, or Gabor features. We initially fix the hyperparameters to identify the most promising feature set using 5-fold cross-validation. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35; the averaged validation accuracy from 5-fold cross-validation is used as a measure of success for the hyperparameter setting. 
+The perceptron can use pixel or Gabor features. We initially fix the hyperparameters to identify the most promising feature set using 5-fold cross-validation. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35; the averaged validation accuracy from 5-fold cross-validation is used as a measure of success for the hyperparameter setting. 
 
 \subsection{Fully-Connected Neural Network}
-The neural network can also use pixel, PCA, or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier; we use results from 2-fold cross-validation, as neural networks take a long time to train. Then, we perform random search over 15 hyperparameter settings; we use mean accuracy from 2-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
+The neural network can also use pixel or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier; we use results from 2-fold cross-validation, as neural networks take a long time to train. Then, we perform random search over 15 hyperparameter settings; we use mean accuracy from 2-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
@@ -144,8 +140,7 @@ The neural network can also use pixel, PCA, or Gabor features. As we did for the
 
 
 \subsection{Linear SVM}
-As we do for the perceptron and fully-connected neural network, 
-
+As we do for the perceptron and fully-connected neural network, we used reasonable hyperparameters to determine which feature set between pixels and Gabor features had the most potential with this classifier. Using results from a 5-fold cross validation run with the full Gabor feature set and the standardized pixel data, determine the best feature set for htis classifier. We then perform cross-validation over two hyperparameters; the learning rate $\alpha \in [10^{-4},10^{-1}]$  and the number of iterations (between 1 and 50). 
 
 \subsection{Convolutional Neural Network}
 The only appropriate features for a convolutional neural network are pixel features. We must optimize many hyperparameters; in addition to those for the fully-connected neural network, we must also consider the dropout rate, as well as the number of convolution layers, the number of filters per layer, and the filter sizes. We must also consider activation functions, learning rate decay, and momentum rate. 
@@ -163,21 +158,21 @@ Luckily, we can use heuristics to reduce search when it comes to the size of hid
 \section{Testing and Validation}%detailed analysis of results
 
 \subsection{Perceptron}
-In a primary step, we performed 5-fold cross-validation to compare raw pixels, PCA, and Gabor features using a fixed learning rate ($\alpha = 0.01$) and number of iterations (15). As shown in Table \ref{tab:perc-features}, PCA features were the most performant, with a validation accuracy of 26.282\%.
+In a primary step, we performed 5-fold cross-validation to compare raw pixels and Gabor features using a fixed learning rate ($\alpha = 0.01$) and number of iterations (15). As shown in Table \ref{tab:perc-features}, pixel features were the most performant, with a validation accuracy of 26.282\%.
 \begin{table}[h!]
   \centering
   \begin{tabular}{|c||c|c|c| }
     \hline
-    {\bfseries Features} & Pixels & PCA & Gabor \\
+    {\bfseries Features} & Pixels & Gabor \\
     \hline
-    {\bfseries Accuracy} & 25.794 & 26.282 & 10.398 \\
+    {\bfseries Accuracy} & 26.282  & 10.398 \\
     \hline
   \end{tabular}
   \caption{Mean validation accuracy of perceptron using different features}
   \label{tab:perc-features}
 \end{table}
 
-Using PCA features, we performed 5-fold cross-validation over the learning rate $\alpha$ and the number of training iterations of the perceptron model. Figure \ref{fig:perc-gridsearch} shows the results of gridsearch with both parameters. The precise values of the best parameters found by the gridsearch cross-validation procedure were $\alpha = 0.0005$ with 25 training iterations, yielding a mean validation accuracy of 26.598\%.\footnote{Additional results showing training error vs validation error are shown in Appendix \ref{sec:additional-results}}
+Using pixel features, we performed 5-fold cross-validation over the learning rate $\alpha$ and the number of training iterations of the perceptron model. Figure \ref{fig:perc-gridsearch} shows the results of gridsearch with both parameters. The precise values of the best parameters found by the gridsearch cross-validation procedure were $\alpha = 0.0005$ with 25 training iterations, yielding a mean validation accuracy of 26.598\%.\footnote{Additional results showing training error vs validation error are shown in Appendix \ref{sec:additional-results}}
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{perceptron_gridsearch}
@@ -200,9 +195,9 @@ To select the best feature set for this classifier, we performed a quick 2-fold 
   \centering
   \begin{tabular}{|c||c|c|c| }
     \hline
-    {\bfseries Features} & Pixels & PCA & Gabor \\
+    {\bfseries Features} & Pixels & Gabor \\
     \hline
-    {\bfseries Accuracy} & 32.570 & 32.482 & 12.944 \\
+    {\bfseries Accuracy} & 32.570 & 12.944 \\
     \hline
   \end{tabular}
   \caption{Mean validation accuracy of neural network using different features}
@@ -254,10 +249,35 @@ We train our neural network using these hyperparameters and submit test predicti
 \end{figure}
 
 \subsection{Linear SVM}
+We gathered results from two datasets; the original standardized pixel features, and pixel features resulting from convolving Gabor filters with the example images. Table \ref{tab:svm-features} shows the results of a 5-fold cross-validation, which we used to determine the best feature set. 
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|c||c|c|c| }
+    \hline
+    {\bfseries Features} & Pixels & Gabor \\
+    \hline
+    {\bfseries Accuracy} & 34.5 & 30.0 \\
+    \hline
+  \end{tabular}
+  \caption{Mean validation accuracy of linear SVM using different feature sets}
+  \label{tab:svm-features}
+\end{table}
+
+The standardized pixels used as features yielded the best validation accuracy with the linear SVM model. Using this feature representation, we performed cross-validation over the learning rate $\alpha$ and the number of learning iterations. We show the results of cross-validation in Figures \ref{fig:svm-alpha} and \ref{fig:svm-iter} of Appendix \ref{sec:additional-results}. Our best model used $\alpha =10^{-4} $ and 5 learning iterations.
+
+This model achieved a test accuracy of 35.8\% on the Kaggle public leaderboard. As before, we show the confusion matrix using the validation set in Figure \ref{fig:svm-conf}. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{SVM_standard_confusion}
+  	\caption{Validation confusion matrix for Linear SVM classifier with standardized pixel dataset. }
+  	\label{fig:svm-conf}
+\end{figure}
 
 
 \subsection{Convolutional Neural Network}
-We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. We obtained our best validation results with a convolutional neural network comprised of 4 convolution layers and one hidden layer, using a weight decay factor of 0.995, and rectified linear units (ReLU)  for all neurons--this activation function, written $$f(x) = \max(0.0, x),$$ is known to perform better than bounded activations (e.g. $\tanh$) in deep neural nets for image-related tasks, presumably because they preserve intensity information about incoming information.\cite{Nair}
+We experimented with a number of hyperparameter settings. Figure \ref{fig:convnet-compare} shows the validation accuracy of several settings. We obtained our best validation results with a convolutional neural network comprised of 4 convolution layers and one hidden layer, using a weight decay factor of 0.995, and rectified linear units (ReLU)  for all neurons.
 
 \begin{figure}[h!]
 	\centering
@@ -284,16 +304,17 @@ Our best model, which obtained a validation accuracy of 92.64\% after 750 traini
 
 
 \section{Discussion}% pros/cons of approach & methodology (and alternatives)
-DON'T REMOVE THE CITATIONS, I WILL USE THEM!!!!
-Why is it better at classifying 0s and 1s? Interestingly, it is not due to different proportions of examples in those classes; the data is evenly distributed.
+We trained four models on the difficult digits dataset; a perceptron, a fully-connected neural network, a linear SVM, and finally, a convolutional neural network, which yielded our best test result of 92.73\% on the Kaggle leaderboard, vastly outperforming our other classifiers. Considering the strength of convolutional neural networks for image classification, and their resistance to noise, this is an unsurprising result.
 
-Using Gabor filters as a kernel rather than feature \cite{Sabri}
+Interestingly, both variations of Gabor features failed to produce good results. The smaller representation used for the perceptron and neural network presumably did poorly because it had too few features, or lost too much information relative to the pixel representation. The larger Gabor representation, used for the linear SVM, also did poorly--we believe that this was caused by an opposite problem; this was simply too large of a feature set for these classifiers to handle.
 
-Other version of dropout \cite{Wan}
+Our use of Gabor filters as a source of features had its strength in its domain-specific application; as we discussed earlier, they hold similarities to the way the brain processes visual information. However, it was difficult to translate convolutions of filters with images into features. An alternative would have been to use Gabor filters as a kernel with the SVM model\cite{Sabri}, or using an entirely different feature representation generated from an auto-encoder.
 
-Pretraining \cite{Erhan}
+The inclusion of rotationally perturbed examples for training the convolutional neural network did not improve validation accuracy. This is likely because we did not include perturbations of the validation set; a better approach might have been to pool the prediction of the original example with the prediction for its perturbed version. We might have also tried including more perturbed examples, perhaps tripling or quadrupling the size of the training set. Unfortunately, due to time constraints, this was not feasible. Another alternative might have been to pretrain the convolutional neural network with enlarged upright images from the MNIST dataset.\cite{Erhan}\cite{Rowley}
 
-Others: \cite{Rowley}, \cite{Simard}
+Our confusion matrices reveal some interesting details; classifiers seem to have much more ease with 0s and 1s than with any other number. An inspection of the dataset did not reveal flagrant differences in the number of examples per class; there were perhaps 500 more examples of 1s than of other numbers, but this seems relatively minor. It seems more likely that the difference is due to their easily recognizable, and fairly universal shape across handwritings and orientations. We also observed that the neural network frequently labeled 8s as 1s; we suggest that this may be due to some individuals writing 8s so narrow that they resemble 1s.
+
+As a whole, our results emphasize the difficulty of working with the difficult digits dataset, and the necessity of extremely descriptive feature representations; we achieved impressive results with convolutional neural networks, which implicitly extract such features before learning. Future research might consider reviewing the notion of introducing perturbed examples, or larger convolutional neural networks containing more layers--indeed, we noted best results with larger filters, and a sizeable gain in accuracy with each new layer added. Researchers might also attempt the method described by Wan et al.\cite{Wan}, who implemented drop-connect, a version of dropout where connections are dropped rather than neurons; they obtained the best results with the MNIST dataset by pooling the predictions of multiple convolutional neural networks trained with drop-connect in their hidden layers.
 
 {\bfseries We hereby state that all the work presented in this report is that of the authors.}
 
@@ -318,15 +339,27 @@ Others: \cite{Rowley}, \cite{Simard}
 	\includegraphics[width=\linewidth]{perceptron_iterations}
   	\caption{Cross-validation over \# of iterations with perceptron, keeping $\alpha$ optimal}
   	\label{fig:perc-iterations}
-\end{figure}
-
-
+\end{figure}s
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{neuralnet_crossval_oddgraph}
 	\caption{Cross-validation results for the neural network}
 	\label{fig:nn-crossval}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{SVM_standard_rate2}
+	\caption{Cross-validation over learning rate for the linear SVM}
+	\label{fig:svm-alpha}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{SVM_standard_iter}
+	\caption{Cross-validation over number of iterations for the linear SVM}
+	\label{fig:svm-iter}
 \end{figure}
 
 \begin{table*}[h!]
