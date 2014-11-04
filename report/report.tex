@@ -12,39 +12,6 @@
 \usetikzlibrary{positioning}
 \usepackage{wasysym}
 
-% \stack{5}{(4,0)}{(3,2)}{Label} draws a stack of 5 at (4,0) with dimensions (3,2)
-% and labels the center with "Label"
-\newcommand{\stack}[4]{
-  \foreach \i in {1,...,#1} {
-    \draw[fill=blue!50] #2 ++({0.1*(#1)},{-0.1*(#1)}) ++({-0.1*\i},{0.1*\i}) rectangle +#3;
-  }
-  \path #2 -- +#3 node[pos=0.5] {#4};
-}
-
-\tikzset{%
-  every neuron/.style={
-    circle,
-    draw,
-    minimum size=1cm
-  },
-  neuron missing/.style={
-    draw=none, 
-    scale=3,
-    text height=0.333cm,
-    execute at begin node=\color{black}$\vdots$
-  },
-  every filter/.style={
-    rectangle,
-    draw,
-    minimum size=0.5cm
-  },
-  filter missing/.style={
-    draw=none,
-    scale=3,
-    text height=0.333cm,
-    execute at begin node=\color{black}$\vdots$
-  },
-}
 
 \begin{document}
 
@@ -242,9 +209,49 @@ To select the best feature set for this classifier, we performed a quick 2-fold 
   \label{tab:nn-features}
 \end{table}
 
-Using standardized pixel features, we performed 2-fold cross-validation over the learning rate $\alpha$, the number of layers, and the number of hidden units per layer using a random search technique. As we found during manual search that validation accuracies level off at 20 training epochs, we train our models for that duration. (SHOW A FIGURE HERE)
+Using standardized pixel features, we performed 2-fold cross-validation over the learning rate $\alpha$, the number of layers, and the number of hidden units per layer using a random search technique. As we found during manual search that validation accuracies level off at 20 training epochs, we train our models for that duration. From our 20 samples, shown in Table \ref{tab:nn-crossval} (and Figure \ref{fig:nn-crossval} in Appendix \ref{sec:additional-results}), we see that the model with learning rate 0.01 and one hidden-layer with 25 hidden units performed best.
 
-We train our neural network using these hyperparameters and submit test predictions to Kaggle; this yielded a test accuracy of ???. Once more, we show the cross-validation confusion matrix in Figure ??.
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|c|c|c|}
+  \hline
+  {\bfseries Learning rate} & {\bfseries Layer Sizes} & {\bfseries Accuracy}\\
+  \hline \hline
+  0.001  & [2304, 10, 10, 10] & 21.562   \\
+     0.1  & [2304, 25, 20, 10] &  27.241   \\
+     0.005 & [2304, 15, 10] &      29.065  \\
+     0.1   &[2304, 20, 10] & 29.971   \\
+     0.0005 & [2304, 10, 10] & 28.0548   \\
+     0.005  &  [2304, 30, 10, 10] &  28.748 \\
+     0.01  & [2304, 10, 25, 10] &  29.412 \\
+     0.0005 & [2304, 15, 10] &  28.619     \\
+     0.01 & [2304, 25, 10] &   29.151  \\
+     0.01 & [2304, 20, 10] &  29.565 \\
+     0.001  &  [2304, 25, 25, 10] & 26.832  \\
+     0.1  & [2304, 20, 30, 10] &  29.736 \\
+     0.01 &  [2304, 30, 30, 10] &  31.259   \\
+     0.1  & [2304, 15, 15, 10] &  31.000    \\
+     0.05  &  [2304, 10, 10] & 31.320    \\
+     0.005  &  [2304, 25, 15, 10] & 31.609  \\
+     0.01 & [2304, 25, 10] & 31.886  \\
+     0.001 &  [2304, 15, 10, 10] &       30.329 \\
+     0.01  &  [2304, 10, 30, 10] & 30.678   \\
+     0.05 &  [2304, 10, 10] &     30.903 \\
+     \hline
+  \end{tabular}
+  \caption{Cross-validation accuracies for the neural network}
+  \label{tab:nn-crossval}
+\end{table}
+
+
+We train our neural network using these hyperparameters and submit test predictions to Kaggle; this yielded a test accuracy of ???. Once more, we show the cross-validation confusion matrix in Figure \ref{nn-conf}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{neuralnet_confusion}
+  	\caption{Validation confusion matrix for fully connected neural network}
+  	\label{fig:nn-conf}
+\end{figure}
 
 \subsection{Linear SVM}
 
@@ -255,7 +262,7 @@ We experimented with a number of hyperparameter settings. Figure \ref{fig:convne
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{convnet_comparison}
-  	\caption{Validation scores of convolutional neural network at different hyperparameter settings. Appendix \ref{sec:convnet-settings} elaborates on the specific hyperparameters used in the trials showed here.}
+  	\caption{Validation scores of convolutional neural network at different hyperparameter settings. Appendix \ref{sec:additional-results} elaborates on the specific hyperparameters used in the trials showed here.}
   	\label{fig:convnet-compare}
 \end{figure}
 
@@ -277,6 +284,7 @@ Our best model, which obtained a validation accuracy of 92.64\% after 750 traini
 
 
 \section{Discussion}% pros/cons of approach & methodology (and alternatives)
+DON'T REMOVE THE CITATIONS, I WILL USE THEM!!!!
 Why is it better at classifying 0s and 1s? Interestingly, it is not due to different proportions of examples in those classes; the data is evenly distributed.
 
 Using Gabor filters as a kernel rather than feature \cite{Sabri}
@@ -292,6 +300,7 @@ Others: \cite{Rowley}, \cite{Simard}
 \bibliographystyle{abbrv}
 \bibliography{references}
 
+\newpage
 \appendix
 \label{appendix}
 
@@ -311,8 +320,15 @@ Others: \cite{Rowley}, \cite{Simard}
   	\label{fig:perc-iterations}
 \end{figure}
 
-\section{Hyperparameters for convolutional neural network}
-\label{sec:convnet-settings}
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{neuralnet_crossval_oddgraph}
+	\caption{Cross-validation results for the neural network}
+	\label{fig:nn-crossval}
+\end{figure}
+
 \begin{table*}[h!]
   \centering
   \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}

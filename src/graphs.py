@@ -148,6 +148,104 @@ class PerceptronPlotter(object):
 		self.plt_learningrate()
 
 
+
+
+# ------------------
+# NEURAL NET GRAPHS
+# -------------------
+
+class NNPlotter(object):
+
+	def __init__(self):
+		# these were the parameters considered
+		alphas_steph = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_alphas_STEPH.npy')
+		alphas_narges = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_alphas_NARGES.npy')
+		self.alphas = np.concatenate((alphas_steph, alphas_narges))
+
+		layers_steph = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_layers_STEPH.npy')
+		layers_narges = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_layers_NARGES.npy')
+		self.layers = np.concatenate((layers_steph, layers_narges))
+
+		# these were the results
+		results_steph = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_crossval_results_STEPH.npy')
+		results_narges = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_crossval_results_NARGES.npy')
+		self.results = np.concatenate((results_steph, results_narges))
+
+		confusion_steph = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_crossval_confmatrices_STEPH.npy')
+		confusion_narges = np.load('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/results/nn_crossval_confmatrices_STEPH.npy')
+		self.confusion = np.concatenate((confusion_steph, confusion_narges))
+
+		self.argmax = np.argmax(self.results)
+		self.best = np.max(self.results)
+		self.best_alpha = self.alphas[self.argmax]
+		self.best_layers = self.layers[self.argmax]
+
+	def best_results(self):
+		print 'Best NEURAL NET: '
+		print 'accuracy = %f' % self.best
+		print 'alpha = %f' % self.best_alpha
+		print 'layers = ', self.best_layers
+
+	def plot_oddgraph(self):
+		fig = plt.figure()
+		ax = fig.add_subplot(1,1,1)
+
+		num_hus = map(lambda x: x[1]+x[2] if len(x)==4 else x[1], self.layers.tolist())
+		num_layers = map(lambda x: 2 if len(x)==4 else 1, self.layers.tolist())
+
+		colors = num_hus 
+		sizes = map(lambda x: 100 if x==1 else 700, num_layers) 
+
+		plt.scatter(self.alphas, self.results, c=colors, s=sizes, alpha=0.8)
+
+		c = plt.colorbar(orientation='vertical', shrink = 0.8)
+		c.set_label("Total number of HUs")
+
+		l1 = plt.scatter([],[], s=100, edgecolors='none')
+		l2 = plt.scatter([],[], s=700, edgecolors='none')
+
+		labels = ["1", "2"]
+
+		leg = plt.legend([l1, l2], labels, ncol=4, frameon=True, fontsize=12,handlelength=2, loc = 4, borderpad = 1.8,handletextpad=1, title='Hidden layers', scatterpoints = 1)
+		# # legend
+		# handles, labels = ax.get_legend_handles_labels()
+		# ax.legend(handles, labels, loc=0)
+
+		plt.xticks([0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001])
+		ax.set_xlim([0.0001,0.2])
+		ax.set_xscale('log')
+		# # labels
+		ax.set_xlabel('Learning rate')
+		ax.set_ylabel('Mean accuracy')
+
+		plt.savefig('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/report/neuralnet_crossval_oddgraph.pdf')
+
+	def conf_matrix(self):
+		fig = plt.figure()
+		ax = fig.add_subplot(111)
+
+		mat = self.confusion[self.argmax].tolist()
+
+		cax = ax.matshow(mat, cmap=cm.jet)
+		fig.colorbar(cax)
+
+		for x in xrange(10):
+			for y in xrange(10):
+				ax.annotate('%4.2f' % (mat[x][y]), xy=(y,x), horizontalalignment='center', verticalalignment='center', color='white')
+
+		plt.xticks(np.arange(10))
+		plt.yticks(np.arange(10))
+		ax.set_title('Prediction', fontsize=16)
+		ax.set_ylabel('True label', fontsize=16)
+
+		plt.savefig('/Users/stephanielaflamme/Dropbox/COMP 598/Miniproject3/report/neuralnet_confusion.pdf')
+
+	def all_plots(self):
+		self.best_results()
+		self.plot_oddgraph()
+		self.conf_matrix()
+
+
 # ---------------------
 # GABOR FILTER EXAMPLES
 # ---------------------
@@ -282,9 +380,7 @@ def convnet_confusion():
 # Do the actual graphing of your choice here
 # ------------------------------------------
 # convnet_visualize()
-# convnet_confusion()
-p = PerceptronPlotter()
-p.conf_matrix()
+
 
 
 
