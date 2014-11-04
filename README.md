@@ -1,10 +1,15 @@
+QUICK GUIDE:
+
 part1.py --> Basic classifier (perceptron) experiments
+
 part2.py --> Neural network experiments
+
 part3.py --> Linear SVM experiments
+
 part4.py --> Convolutional neural net experiments
 
 
-Implementations:
+IMPLEMENTATIONS:
 
 The creation of feature sets can be found in 'features.py'
 
