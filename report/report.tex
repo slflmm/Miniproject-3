@@ -122,7 +122,7 @@ For each learner, we fix the hyperparameters to compare the performance of appro
 The perceptron can use pixel or Gabor features. We initially fix the hyperparameters to identify the most promising feature set using 5-fold cross-validation. We then consider its two hyperparameters--learning rate and number of learning iterations--and perform gridsearch for $\alpha \in [10^{-4},10^{-1}]$ and the number of iterations ranging form 10 to 35; the averaged validation accuracy from 5-fold cross-validation is used as a measure of success for the hyperparameter setting. 
 
 \subsection{Fully-Connected Neural Network}
-The neural network can also use pixel or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier; we use results from 2-fold cross-validation, as neural networks take a long time to train. Then, we perform random search over 15 hyperparameter settings; we use mean accuracy from 2-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
+The neural network can also use pixel or Gabor features. As we did for the perceptron, we fix what appear to be reasonable hyperparameters and identify the best feature set for this classifier; we use results from 2-fold cross-validation, as neural networks take a long time to train. Then, we perform random search over 20 hyperparameter settings; we use mean accuracy from 2-fold cross-validation to determine the most promising parameter setting. Table \ref{tab:nn-hyp} lists the hyperparameters and the range of values we consider.
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
